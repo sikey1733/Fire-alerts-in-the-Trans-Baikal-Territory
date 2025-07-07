@@ -13,10 +13,17 @@ jobs:
       TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       VIIRS_KEY: ${{ secrets.VIIRS_KEY }}
+      CDS_API_KEY: ${{ secrets.CDS_API_KEY }}
+      CDS_USER_ID: ${{ secrets.CDS_USER_ID }}
 
     steps:
       - name: 🔽 Клонирование репозитория
         uses: actions/checkout@v4
+
+      - name: Установка Git LFS
+        run: |
+          git lfs install
+          git lfs pull
 
       - name: 🛠️ Установка R
         uses: r-lib/actions/setup-r@v2
@@ -28,6 +35,9 @@ jobs:
 
       - name: 🚀 Запуск основного R-скрипта
         run: Rscript pipeline.R
+
+      - name: Создание папки для вывода
+        run: mkdir -p output
 
       - name: 📤 Загрузка артефактов (например, PNG-карт)
         if: always()
