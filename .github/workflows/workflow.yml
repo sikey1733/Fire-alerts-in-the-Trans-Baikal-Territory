@@ -2,7 +2,7 @@ name: 🔥 Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 11 * * *"  
+    - cron: "0 11 * * *"  # каждый день в 14:00 по МСК
   workflow_dispatch:
 
 jobs:
@@ -15,6 +15,7 @@ jobs:
       VIIRS_KEY: ${{ secrets.VIIRS_KEY }}
       CDS_API_KEY: ${{ secrets.CDS_API_KEY }}
       CDS_USER_ID: ${{ secrets.CDS_USER_ID }}
+      R_LIBS_USER: ~/R/Library
 
     steps:
       - name: 🔽 Клонирование репозитория
@@ -26,28 +27,27 @@ jobs:
       - name: 📦 Кэширование библиотек R
         uses: actions/cache@v3
         with:
-          path: ${{ env.R_LIBS_USER }}
+          path: ~/R/Library
           key: ${{ runner.os }}-r-${{ hashFiles('**/*.R', '**/*.Rmd', '**/DESCRIPTION') }}
           restore-keys: |
             ${{ runner.os }}-r-
 
-      - name: 📦 Установка зависимостей
+      - name: 📦 Установка зависимостей и запуск
         run: |
+          mkdir -p ~/R/Library
           Rscript -e 'install.packages(c(
             "ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate", 
             "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", 
             "webshot", "ggplot2", "rmarkdown", "curl", "xml2"
           ), repos = "https://cloud.r-project.org/")'
           Rscript -e 'webshot::install_phantomjs()'
-
-      - name: 🚀 Запуск основного скрипта
-        run: |
           Rscript Scripts/pipeline.R
 
       - name: 📂 Просмотр содержимого папки output/
-        run: ls -lh output/
+        run: ls -lh output/ || echo "Нет папки output/"
 
       - name: 📤 Загрузка артефактов (output/)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: output-plots
