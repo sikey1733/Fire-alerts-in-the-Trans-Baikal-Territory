@@ -2,7 +2,7 @@ name: 🔥 Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 11 * * *"  # каждый день в 14:00 по Москве (UTC+3)
+    - cron: "0 11 * * *"  
   workflow_dispatch:
 
 jobs:
