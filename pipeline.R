@@ -16,25 +16,19 @@ main <- function() {
   cleaned_data <- clear_na_nc(transformed_data)
   if (is.null(cleaned_data)) return()
 
-  # 5. Визуализация графиков
-  vizualization_weather_param(cleaned_data)
-  roza_air_vizualization(cleaned_data)
-
-  # 6. Загрузка VIIRS пожаров
+  # 5. Загрузка VIIRS пожаров
   download_viirs_noaa21_375m()
 
-  # 7. Фильтрация пожаров по регионам
+  # 6. Фильтрация пожаров по регионам
   fire_data <- filter_fires_by_region()
   if (is.null(fire_data)) return()
 
-  # 8. Интерактивная карта всех пожаров
-  leaflet_vizualization_fire(fire_data)
 
-  # 9. Расчёт расстояний до населённых пунктов и водоёмов
+  # 7. Расчёт расстояний до населённых пунктов и водоёмов
   fire_with_distances <- calculate_fire_distances()
   if (is.null(fire_with_distances)) return()
 
-  # 10. Карта ближайшего пожара, поселения и водоёма
+  # 8. Карта ближайшего пожара, поселения и водоёма
   region_names <- c(
     "Забайкальский край, Россия",
     "Республика Бурятия, Россия",
@@ -45,9 +39,9 @@ main <- function() {
   water_sf <- get_all_waterbodies(region_names)
   leaflet_nearest_fire_map(fire_with_distances, places_sf, water_sf)
 
-  # 11. Отправка уведомлений в Telegram
+  # 9. Отправка уведомлений в Telegram
   filter_and_notify(cleaned_data)
 
-  # 12. Отправка лога
+  # 10. Отправка лога
   write(paste(Sys.time(), "успешно завершено"), file = "last_success.log", append = TRUE)
 }
