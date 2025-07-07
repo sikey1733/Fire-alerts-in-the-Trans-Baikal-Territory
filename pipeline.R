@@ -1,34 +1,41 @@
+# Загрузка всех функций
+source("scripts/load_cds_data.R")
+source("scripts/read_file_nc.R")
+source("scripts/transform_data_nc.R")
+source("scripts/clear_na_nc.R")
+source("scripts/download_viirs_noaa21_375m.R")
+source("scripts/filter_fires_by_region.R")
+source("scripts/calculate_fire_distances.R")
+source("scripts/get_all_places.R")
+source("scripts/get_all_waterbodies.R")
+source("scripts/leaflet_nearest_fire_map.R")
+source("scripts/filter_and_notify.R")
+source("scripts/send_telegram_message.R")
+source("scripts/send_telegram_image.R")
+source("scripts/filter_critical_fires_dynamic.R")
+source("scripts/calc_fire_risk_flag.R")
+
+# Главная функция
 main <- function() {
   message("🚀 Запуск обработки данных...")
 
-  # 1. Загрузка погодных данных ERA5
   load_cds_data()
-
-  # 2. Чтение и объединение файлов
   weather_data <- read_file_nc()
   if (is.null(weather_data)) return()
 
-  # 3. Трансформация
   transformed_data <- transform_data_nc(weather_data)
   if (is.null(transformed_data)) return()
 
-  # 4. Очистка от NA
   cleaned_data <- clear_na_nc(transformed_data)
   if (is.null(cleaned_data)) return()
 
-  # 5. Загрузка VIIRS пожаров
   download_viirs_noaa21_375m()
-
-  # 6. Фильтрация пожаров по регионам
   fire_data <- filter_fires_by_region()
   if (is.null(fire_data)) return()
 
-
-  # 7. Расчёт расстояний до населённых пунктов и водоёмов
   fire_with_distances <- calculate_fire_distances()
   if (is.null(fire_with_distances)) return()
 
-  # 8. Карта ближайшего пожара, поселения и водоёма
   region_names <- c(
     "Забайкальский край, Россия",
     "Республика Бурятия, Россия",
@@ -39,9 +46,9 @@ main <- function() {
   water_sf <- get_all_waterbodies(region_names)
   leaflet_nearest_fire_map(fire_with_distances, places_sf, water_sf)
 
-  # 9. Отправка уведомлений в Telegram
   filter_and_notify(cleaned_data)
 
-  # 10. Отправка лога
   write(paste(Sys.time(), "успешно завершено"), file = "last_success.log", append = TRUE)
 }
+
+main()
