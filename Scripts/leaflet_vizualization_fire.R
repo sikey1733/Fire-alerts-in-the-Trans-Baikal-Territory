@@ -32,6 +32,11 @@ leaflet_vizualization_fire <- function(data) {
           }
         )
       )
+    
+    dir.create("output", showWarnings = FALSE, recursive = TRUE)
+    htmlwidgets::saveWidget(map, "output/fire_map.html", selfcontained = TRUE)
+    webshot("output/fire_map.html", file = "output/fire_map.png", vwidth = 800, vheight = 600)
+    
     return(map)
   } else {
     message("Данных нет!")
