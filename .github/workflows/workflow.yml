@@ -35,6 +35,7 @@ jobs:
       - name: 📦 Установка зависимостей и запуск
         run: |
           mkdir -p ~/R/Library
+          export R_LIBS_USER=~/R/Library
           Rscript -e 'install.packages(c(
             "ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate", 
             "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", 
@@ -42,6 +43,11 @@ jobs:
           ), repos = "https://cloud.r-project.org/")'
           Rscript -e 'webshot::install_phantomjs()'
           Rscript Scripts/pipeline.R
+          
+      - name: 🔍 Проверка установленных пакетов
+        run: |
+          export R_LIBS_USER=~/R/Library
+          Rscript -e 'print(installed.packages()[, "Package"])'
 
       - name: 📂 Просмотр содержимого папки output/
         run: ls -lh output/ || echo "Нет папки output/"
