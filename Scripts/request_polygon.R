@@ -1,5 +1,5 @@
 # Запрос полигонов OSM
-request_polygon_OSM <- function(region_names, save_path = "data/polygons.gpkg") {
+request_polygon <- function(region_names, save_path = "data/polygons.gpkg") {
   
   if (file.exists(save_path)) {
     message("Загружаю полигоны из файла: ", save_path)
