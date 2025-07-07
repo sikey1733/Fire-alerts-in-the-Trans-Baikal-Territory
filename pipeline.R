@@ -28,7 +28,7 @@ main <- function() {
   if (is.null(fire_data)) return()
 
   # 8. Интерактивная карта всех пожаров
-  leaflet_vizualization(fire_data)
+  leaflet_vizualization_fire(fire_data)
 
   # 9. Расчёт расстояний до населённых пунктов и водоёмов
   fire_with_distances <- calculate_fire_distances()
