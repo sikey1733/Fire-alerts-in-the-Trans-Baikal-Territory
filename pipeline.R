@@ -47,4 +47,7 @@ main <- function() {
 
   # 11. Отправка уведомлений в Telegram
   filter_and_notify(cleaned_data)
+
+  # 12. Отправка лога
+  write(paste(Sys.time(), "успешно завершено"), file = "last_success.log", append = TRUE)
 }
