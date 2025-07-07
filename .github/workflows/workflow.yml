@@ -2,8 +2,8 @@ name: 🔥 Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 14 * * *"  
-  workflow_dispatch:     
+    - cron: "0 12 * * *"
+  workflow_dispatch:
 
 jobs:
   run-r-script:
@@ -17,34 +17,44 @@ jobs:
       CDS_USER_ID: ${{ secrets.CDS_USER_ID }}
 
     steps:
-      - name: 🔽 Клонирование репозитория
+      - name: 🔽 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🧩 Установка Git LFS
+      - name: Setup Git LFS
         run: |
           git lfs install
           git lfs pull
 
-      - name: 🛠️ Установка R
+      - name: Setup R
         uses: r-lib/actions/setup-r@v2
 
-      - name: 📦 Установка зависимостей
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/r-lib
+          key: ${{ runner.os }}-r-packages-${{ hashFiles('**/*.R') }}
+          restore-keys: |
+            ${{ runner.os }}-r-packages-
+
+      - name: Install dependencies
+        env:
+          R_LIBS_USER: ${{ github.workspace }}/r-lib
         run: |
-          Rscript -e 'install.packages(c(
-            "ecmwfr", "tidyverse", "stars", "openair", "httr",
-            "lubridate", "osmdata", "sf", "leaflet", "geosphere",
-            "mapview", "htmlwidgets", "webshot", "ggplot2",
-            "rmarkdown", "curl", "xml2"
-          ))'
+          mkdir -p $R_LIBS_USER
+          Rscript -e 'pkgs <- c("ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate", "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", "webshot", "ggplot2", "rmarkdown", "curl", "xml2"); \
+                      new <- pkgs[!(pkgs %in% installed.packages(lib.loc=Sys.getenv("R_LIBS_USER"))[, "Package"])]; \
+                      if(length(new)) install.packages(new, lib=Sys.getenv("R_LIBS_USER"))'
           Rscript -e 'webshot::install_phantomjs()'
 
-      - name: 📁 Создание папки вывода
+      - name: Run main R script
+        env:
+          R_LIBS_USER: ${{ github.workspace }}/r-lib
+        run: Rscript -e "source('pipeline.R'); main()"
+
+      - name: Create output directory
         run: mkdir -p output
 
-      - name: 🚀 Запуск основного R-скрипта
-        run: Rscript pipeline.R
-
-      - name: 📤 Загрузка артефактов (например, PNG-карт)
+      - name: Upload output artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
