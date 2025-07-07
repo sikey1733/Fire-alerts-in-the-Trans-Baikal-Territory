@@ -2,8 +2,8 @@ name: 🔥 Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 12 * * *"
-  workflow_dispatch:
+    - cron: "0 11 * * *"   # запуск каждый день в 14:00 UTC
+  workflow_dispatch:       # запуск вручную
 
 jobs:
   run-r-script:
@@ -20,43 +20,34 @@ jobs:
       - name: 🔽 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Git LFS
-        run: |
-          git lfs install
-          git lfs pull
-
-      - name: Setup R
+      - name: Установка R
         uses: r-lib/actions/setup-r@v2
 
-      - name: Cache R packages
+      - name: 📦 Кэширование пакетов
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/r-lib
-          key: ${{ runner.os }}-r-packages-${{ hashFiles('**/*.R') }}
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-packages-${{ hashFiles('**/*.R', '**/*.Rmd') }}
           restore-keys: |
             ${{ runner.os }}-r-packages-
 
-      - name: Install dependencies
-        env:
-          R_LIBS_USER: ${{ github.workspace }}/r-lib
+      - name: Установка зависимостей R
         run: |
-          mkdir -p $R_LIBS_USER
-          Rscript -e 'pkgs <- c("ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate", "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", "webshot", "ggplot2", "rmarkdown", "curl", "xml2"); \
-                      new <- pkgs[!(pkgs %in% installed.packages(lib.loc=Sys.getenv("R_LIBS_USER"))[, "Package"])]; \
-                      if(length(new)) install.packages(new, lib=Sys.getenv("R_LIBS_USER"))'
-          Rscript -e 'webshot::install_phantomjs()'
+          install.packages(c("ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate",
+                             "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets",
+                             "webshot", "ggplot2", "rmarkdown", "curl", "xml2"))
+          webshot::install_phantomjs()
 
-      - name: Run main R script
-        env:
-          R_LIBS_USER: ${{ github.workspace }}/r-lib
-        run: Rscript -e "source('pipeline.R'); main()"
+      - name: Запуск R-скрипта
+        run: |
+          Rscript -e 'source("pipeline.R"); main()'
 
-      - name: Create output directory
-        run: mkdir -p output
+      - name: 📂 Показать содержимое output/ (для отладки)
+        run: ls -l output/
 
-      - name: Upload output artifacts
-        if: always()
+      - name: 📤 Загрузка артефактов output
         uses: actions/upload-artifact@v4
         with:
           name: output-plots
           path: output/
+          if-no-files-found: warn
