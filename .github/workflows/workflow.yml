@@ -42,7 +42,7 @@ jobs:
 
       - name: 🚀 Запуск основного скрипта
         run: |
-          Rscript -e 'source("pipeline.R"); main()'
+          Rscript scripts/pipeline.R
 
       - name: 📂 Просмотр содержимого папки output/
         run: ls -lh output/
