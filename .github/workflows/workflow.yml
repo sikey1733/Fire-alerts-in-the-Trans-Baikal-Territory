@@ -2,8 +2,8 @@ name: 🔥 Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 14 * * *"  # Каждый день в 14:00 UTC (17:00 МСК)
-  workflow_dispatch:     # Возможность ручного запуска
+    - cron: "0 14 * * *"  
+  workflow_dispatch:     
 
 jobs:
   run-r-script:
