@@ -37,11 +37,8 @@ jobs:
           mkdir -p ~/R/Library
           export R_LIBS_USER=~/R/Library
           
-          Rscript -e 'install.packages("remotes", repos = "https://cloud.r-project.org")'
-          Rscript -e 'remotes::install_github("bluegreen-labs/ecmwfr")'
-          
           Rscript -e 'install.packages(c(
-            "tidyverse", "stars", "openair", "httr", "lubridate", 
+            "ecmwfr", "tidyverse", "stars", "openair", "httr", "lubridate", 
             "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", 
             "webshot", "ggplot2", "rmarkdown", "curl", "xml2"
           ), repos = "https://cloud.r-project.org/")'
