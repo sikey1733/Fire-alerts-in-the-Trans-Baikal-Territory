@@ -36,12 +36,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential \
-            libcurl4-openssl-dev libssl-dev libxml2-dev \
-            libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
-            libfontconfig1-dev \
-            libharfbuzz-dev libfreetype6-dev \
-            libfribidi-dev
+          build-essential pkg-config \
+          libcurl4-openssl-dev libssl-dev libxml2-dev \
+          libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
+          libfontconfig1-dev libharfbuzz-dev libfreetype6-dev \
+          libfribidi-dev
+
+          echo "✅ Проверка наличия fribidi:"
+          dpkg -L libfribidi-dev | grep fribidi.h || echo "❌ fribidi.h не найден!"
 
       - name: 📦 Установка зависимостей и запуск
         run: |
