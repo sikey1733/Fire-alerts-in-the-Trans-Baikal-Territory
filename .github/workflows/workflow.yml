@@ -37,15 +37,18 @@ jobs:
           mkdir -p ~/R/Library
           export R_LIBS_USER=~/R/Library
 
+          echo "👉 Устанавливаю критические зависимости"
+          Rscript -e 'install.packages(c("curl", "httr"), repos = "https://cloud.r-project.org")'
+
           echo "👉 Устанавливаю ecmwfr"
           Rscript -e 'install.packages("ecmwfr", repos = "https://cloud.r-project.org")'
           Rscript -e 'library(ecmwfr); print("✅ ecmwfr загружен успешно!")'
 
           echo "👉 Устанавливаю остальные зависимости"
           Rscript -e 'install.packages(c(
-            "tidyverse", "stars", "openair", "httr", "lubridate", 
+            "tidyverse", "stars", "openair", "lubridate", 
             "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", 
-            "webshot", "ggplot2", "rmarkdown", "curl", "xml2"
+            "webshot", "ggplot2", "rmarkdown", "xml2"
           ), repos = "https://cloud.r-project.org")'
 
           echo "👉 Устанавливаю PhantomJS"
@@ -53,7 +56,6 @@ jobs:
 
           echo "🚀 Запуск скрипта обработки"
           Rscript Scripts/pipeline.R
-
       - name: 🔍 Проверка установленных пакетов
         run: |
           export R_LIBS_USER=~/R/Library
