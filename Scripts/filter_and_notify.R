@@ -1,8 +1,14 @@
 # Функция-обертка на основе filter_critical_fires_dynamic для отправки уведомления
-filter_and_notify <- function(weather_day_df, bot_token = Sys.getenv("TELEGRAM_TOKEN"),
-                              chat_id = Sys.getenv("TELEGRAM_CHAT_ID"), 
-                              image_directory = "output/") {
+filter_and_notify <- function(weather_day_df,
+                              bot_token = Sys.getenv("TELEGRAM_TOKEN"),
+                              chat_id = Sys.getenv("TELEGRAM_CHAT_ID"),
+                              image_path = "output/nearest_fire_map.png") {
   
+  if (bot_token == "" || chat_id == "") {
+    message("❌ TELEGRAM_TOKEN или TELEGRAM_CHAT_ID не заданы.")
+    return(NULL)
+  }
+
   # 1. Фильтрация критических пожаров
   fire_dist <- filter_critical_fires_dynamic(weather_day_df)
   if (is.null(fire_dist) || nrow(fire_dist) == 0) {
@@ -39,16 +45,20 @@ filter_and_notify <- function(weather_day_df, bot_token = Sys.getenv("TELEGRAM_T
   # 6. Отправка сообщения в Telegram
   tryCatch({
     send_telegram_message(bot_token, chat_id, msg)
-    message("Сообщение успешно отправлено в Telegram.")
+    message("✅ Сообщение успешно отправлено в Telegram.")
   }, error = function(e) {
-    message("Ошибка при отправке сообщения в Telegram: ", e$message)
+    message("❌ Ошибка при отправке сообщения в Telegram: ", e$message)
   })
   
-  # 7. Отправка изображения
-  tryCatch({
-    send_telegram_image(bot_token, chat_id, image_directory)
-    message("Изображение успешно отправлено в Telegram.")
-  }, error = function(e) {
-    message("Ошибка при отправке изображения в Telegram: ", e$message)
-  })
+  # 7. Отправка изображения (если файл существует)
+  if (file.exists(image_path)) {
+    tryCatch({
+      send_telegram_image(bot_token, chat_id, image_path)
+      message("✅ Изображение успешно отправлено в Telegram.")
+    }, error = function(e) {
+      message("❌ Ошибка при отправке изображения в Telegram: ", e$message)
+    })
+  } else {
+    message("⚠️ Файл изображения не найден: ", image_path)
+  }
 }
