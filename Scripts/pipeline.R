@@ -1,39 +1,36 @@
 main <- function() {
-  library(magrittr)
-  library(dplyr)
   message("🚀 Запуск обработки данных...")
 
-  # Проверяем и ставим ecmwfr только при необходимости
-  if (!requireNamespace("ecmwfr", quietly = TRUE)) {
-    message("📦 Устанавливаю пакет ecmwfr...")
-    install.packages("ecmwfr", repos = "https://cloud.r-project.org")
+  # 📦 Список всех необходимых пакетов
+  required_packages <- c(
+    "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
+    "lubridate", "httr", "leaflet", "geosphere", "osmdata",
+    "mapview", "htmlwidgets", "ggplot2"
+  )
+
+  # 📦 Унифицированная установка и загрузка
+  install_and_load <- function(pkg) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      message(paste0("📦 Устанавливаю пакет ", pkg, "..."))
+      tryCatch(
+        install.packages(pkg, repos = "https://cloud.r-project.org"),
+        error = function(e) {
+          message(paste0("❌ Ошибка установки пакета ", pkg, ": ", e$message))
+          stop("Прерываю выполнение.")
+        }
+      )
+    }
+    library(pkg, character.only = TRUE)
   }
 
-  library(ecmwfr)
-  if (!requireNamespace("stars", quietly = TRUE)) {
-  message("📦 Устанавливаю пакет stars...")
-  install.packages("stars", repos = "https://cloud.r-project.org")
-  }
-  library(stars)
+  # 🔁 Прогон по всем
+  invisible(lapply(required_packages, install_and_load))
 
-  # Загрузка всех функций
-  source("Scripts/load_cds_data.R")
-  source("Scripts/read_file_nc.R")
-  source("Scripts/transform_data_nc.R")
-  source("Scripts/clear_na_nc.R")
-  source("Scripts/download_viirs_noaa21_375m.R")
-  source("Scripts/filter_fires_by_region.R")
-  source("Scripts/calculate_fire_distances.R")
-  source("Scripts/get_all_places.R")
-  source("Scripts/get_all_waterbodies.R")
-  source("Scripts/leaflet_nearest_fire_map.R")
-  source("Scripts/filter_and_notify.R")
-  source("Scripts/send_telegram_message.R")
-  source("Scripts/send_telegram_image.R")
-  source("Scripts/filter_critical_fires_dynamic.R")
-  source("Scripts/calc_fire_risk_flag.R")
+  # 📂 Загрузка всех функций
+  script_paths <- list.files("Scripts", full.names = TRUE, pattern = "\\.R$")
+  lapply(script_paths, source)
 
-  # Основной конвейер
+  # 🚀 Основной конвейер
   load_cds_data()
   weather_data <- read_file_nc()
   if (is.null(weather_data)) return()
