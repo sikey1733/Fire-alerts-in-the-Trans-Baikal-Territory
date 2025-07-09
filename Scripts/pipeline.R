@@ -1,11 +1,11 @@
 main <- function() {
   message("🚀 Запуск обработки данных...")
 
-  # 📦 Список всех необходимых пакетов
+  # 📦 Список всех необходимых пакетов (без mapview)
   required_packages <- c(
     "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
     "lubridate", "httr", "leaflet", "geosphere", "osmdata",
-    "mapview", "htmlwidgets", "ggplot2"
+    "htmlwidgets", "ggplot2", "webshot"
   )
 
   # 📦 Унифицированная установка и загрузка
@@ -23,10 +23,10 @@ main <- function() {
     library(pkg, character.only = TRUE)
   }
 
-  # 🔁 Прогон по всем
+  # 🔁 Установка и загрузка всех
   invisible(lapply(required_packages, install_and_load))
 
-  # 📂 Загрузка всех функций
+  # 📂 Загрузка всех R-скриптов
   script_paths <- list.files("Scripts", full.names = TRUE, pattern = "\\.R$")
   lapply(script_paths, source)
 
