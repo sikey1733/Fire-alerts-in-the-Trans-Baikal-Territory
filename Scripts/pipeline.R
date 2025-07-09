@@ -10,6 +10,11 @@ main <- function() {
   }
 
   library(ecmwfr)
+  if (!requireNamespace("stars", quietly = TRUE)) {
+  message("📦 Устанавливаю пакет stars...")
+  install.packages("stars", repos = "https://cloud.r-project.org")
+  }
+  library(stars)
 
   # Загрузка всех функций
   source("Scripts/load_cds_data.R")
