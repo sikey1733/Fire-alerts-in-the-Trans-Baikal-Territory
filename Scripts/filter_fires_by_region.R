@@ -6,7 +6,7 @@ filter_fires_by_region <- function(csv_data_dir = "data/",
                                                     "Иркутская область, Россия")) {
   
   # Шаг 1: Чтение данных
-  fire_df <- read_file_nc(csv_data_dir)
+  fire_df <- read_data_viirs(csv_data_dir)
   if (is.null(fire_df)) {
     message("Ошибка: данные о пожарах не найдены!")
     return(NULL)
