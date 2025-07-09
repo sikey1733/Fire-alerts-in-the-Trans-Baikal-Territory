@@ -36,11 +36,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-          libcurl4-openssl-dev libssl-dev libxml2-dev \
-          libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
-          libfontconfig1-dev \
-          libharfbuzz-dev libfreetype6-dev \
-          libfribidi-dev
+            build-essential \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
+            libfontconfig1-dev \
+            libharfbuzz-dev libfreetype6-dev \
+            libfribidi-dev
 
       - name: 📦 Установка зависимостей и запуск
         run: |
