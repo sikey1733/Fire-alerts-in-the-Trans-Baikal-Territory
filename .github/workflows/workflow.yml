@@ -36,14 +36,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-          build-essential pkg-config \
-          libcurl4-openssl-dev libssl-dev libxml2-dev \
-          libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
-          libfontconfig1-dev libharfbuzz-dev libfreetype6-dev \
-          libfribidi-dev
-
-          echo "✅ Проверка наличия fribidi:"
-          dpkg -L libfribidi-dev | grep fribidi.h || echo "❌ fribidi.h не найден!"
+            build-essential pkg-config \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
+            libfontconfig1-dev
 
       - name: 📦 Установка зависимостей и запуск
         run: |
@@ -60,7 +56,7 @@ jobs:
           echo "👉 Устанавливаю остальные зависимости"
           Rscript -e 'install.packages(c(
             "tidyverse", "stars", "openair", "lubridate", 
-            "osmdata", "sf", "leaflet", "geosphere", "mapview", "htmlwidgets", 
+            "osmdata", "sf", "leaflet", "geosphere", "htmlwidgets", 
             "webshot", "ggplot2", "rmarkdown", "xml2"
           ), repos = "https://cloud.r-project.org")'
 
