@@ -1,4 +1,4 @@
-проверь # Запрос CDS
+# Запрос CDS
 load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
                           api_key = Sys.getenv("CDS_API_KEY")) {
   if (user_id == "" || api_key == "") {
@@ -23,7 +23,7 @@ load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
   target_path <- file.path(data_dir, file_name)
 
   request <- list(
-    dataset_short_name = "reanalysis-era5-single-levels",
+    dataset_short_name = "reanalysis-era5-land",
     product_type = "reanalysis",
     variable = c(
       "10m_u_component_of_wind",
