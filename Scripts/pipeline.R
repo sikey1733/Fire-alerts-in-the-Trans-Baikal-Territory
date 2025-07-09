@@ -1,8 +1,41 @@
 main <- function() {
   message("🚀 Запуск обработки данных...")
 
-  # ... установка пакетов и скриптов ...
+  # 📦 Список всех необходимых пакетов
+  required_packages <- c(
+    "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
+    "lubridate", "httr", "leaflet", "geosphere", "osmdata",
+    "htmlwidgets", "ggplot2", "webshot"
+  )
 
+  # 📦 Унифицированная установка и загрузка
+  install_and_load <- function(pkg) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      message(paste0("📦 Устанавливаю пакет ", pkg, "..."))
+      tryCatch(
+        install.packages(pkg, repos = "https://cloud.r-project.org"),
+        error = function(e) {
+          message(paste0("❌ Ошибка установки пакета ", pkg, ": ", e$message))
+          stop("Прерываю выполнение.")
+        }
+      )
+    }
+    suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+  }
+
+  # 🔁 Установка и загрузка всех
+  invisible(lapply(required_packages, install_and_load))
+  message("✅ Все пакеты установлены и загружены.")
+
+  # 📂 Загрузка всех R-скриптов из папки Scripts
+  script_paths <- list.files("Scripts", full.names = TRUE, pattern = "\\.R$")
+  if (length(script_paths) == 0) {
+    stop("❌ Нет .R скриптов в папке Scripts.")
+  }
+  lapply(script_paths, source)
+  message("✅ Все скрипты загружены.")
+
+  # 📌 Задание регионов
   region_names <- c(
     "Забайкальский край, Россия",
     "Республика Бурятия, Россия",
@@ -10,6 +43,7 @@ main <- function() {
     "Иркутская область, Россия"
   )
 
+  # 🚀 Основной пайплайн
   load_cds_data()
   message("✅ Шаг 1: ERA5 загружены.")
 
@@ -23,7 +57,7 @@ main <- function() {
 
   cleaned_data <- clear_na_nc(transformed_data)
   if (is.null(cleaned_data)) return()
-  message("✅ Шаг 4: Очистка пропущенных")
+  message("✅ Шаг 4: Очистка пропущенных значений")
 
   download_viirs_noaa21_375m()
   message("✅ Шаг 5: VIIRS NOAA21 загружен")
@@ -34,7 +68,7 @@ main <- function() {
 
   fire_with_distances <- calculate_fire_distances(region_names = region_names)
   if (is.null(fire_with_distances)) return()
-  message("✅ Шаг 7: Расстояния рассчитаны")
+  message("✅ Шаг 7: Расстояния до объектов рассчитаны")
 
   places_sf <- get_all_places(region_names)
   message("✅ Шаг 8: Населённые пункты загружены")
@@ -43,10 +77,12 @@ main <- function() {
   message("✅ Шаг 9: Водоёмы загружены")
 
   leaflet_nearest_fire_map(fire_with_distances, places_sf, water_sf)
-  message("✅ Шаг 10: Карта построена")
+  message("✅ Шаг 10: Карта построена и сохранена")
 
   filter_and_notify(fire_with_distances)
   message("✅ Шаг 11: Telegram-уведомление отправлено")
 
   write(paste(Sys.time(), "✅ Успешно завершено"), file = "last_success.log", append = TRUE)
 }
+
+main()
