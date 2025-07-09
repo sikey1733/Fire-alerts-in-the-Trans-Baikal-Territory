@@ -1,11 +1,11 @@
-# Запрос CDS
+проверь # Запрос CDS
 load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
                           api_key = Sys.getenv("CDS_API_KEY")) {
   if (user_id == "" || api_key == "") {
     stop("❌ Переменные CDS_USER_ID или CDS_API_KEY не заданы.")
   }
 
-  # Установка ключа для ecmwfr (без service = "cds")
+  # Установка ключа для ecmwfr
   ecmwfr::wf_set_key(user = user_id, key = api_key)
 
   data_dir <- file.path(getwd(), "data")
@@ -14,8 +14,8 @@ load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
     message("✅ Создана директория 'data'")
   }
 
-  start_date <- Sys.Date() - 12
-  end_date <- start_date + 6
+  start_date <- Sys.Date() - 12      
+  end_date <- start_date + 6     
   dates_seq <- seq.Date(from = start_date, to = end_date, by = "day")
 
   file_name <- paste0("era5_data_", format(start_date, "%Y%m%d"),
@@ -37,11 +37,11 @@ load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
       "leaf_area_index_high_vegetation",
       "leaf_area_index_low_vegetation"
     ),
-    year = format(start_date, "%Y"),
-    month = format(start_date, "%m"),
-    day = format(dates_seq, "%d"),
+    year = format(start_date, "%Y"),   
+    month = format(start_date, "%m"),  
+    day = format(dates_seq, "%d"),     
     time = sprintf("%02d:00", 0:23),
-    area = c(56.5, 108, 49, 120),  # N, W, S, E
+    area = c(56.5, 108, 49, 120),
     format = "netcdf",
     target = file_name
   )
