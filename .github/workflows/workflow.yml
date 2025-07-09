@@ -31,12 +31,14 @@ jobs:
           key: ${{ runner.os }}-r-${{ hashFiles('**/*.R', '**/*.Rmd', '**/DESCRIPTION') }}
           restore-keys: |
             ${{ runner.os }}-r-
-            
+
       - name: 🔧 Установка системных библиотек
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev 
-          
+          sudo apt-get install -y \
+            libcurl4-openssl-dev libssl-dev libxml2-dev \
+            libudunits2-dev libgdal-dev libgeos-dev libproj-dev
+
       - name: 📦 Установка зависимостей и запуск
         run: |
           mkdir -p ~/R/Library
@@ -61,6 +63,7 @@ jobs:
 
           echo "🚀 Запуск скрипта обработки"
           Rscript Scripts/pipeline.R
+
       - name: 🔍 Проверка установленных пакетов
         run: |
           export R_LIBS_USER=~/R/Library
