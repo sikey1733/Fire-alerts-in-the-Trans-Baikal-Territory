@@ -145,3 +145,6 @@ main <- function() {
 
 # Запуск
 main()
+
+# Логи предупреждений
+warnings()
