@@ -11,7 +11,7 @@ main <- function() {
   required_packages <- c(
     "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
     "lubridate", "httr", "geosphere", "osmdata", "ggplot2",
-    "ggrepel", "ggspatial", "ggmap", "prettymapr"
+    "ggrepel", "ggspatial", "ggmap", "maptiles"
   )
 
   install_and_load <- function(pkg) {
