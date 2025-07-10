@@ -56,10 +56,6 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     ) +
     theme_minimal()
 
-  # 6. Отладочный вывод (можно отключить в проде)
-  print(nearest_place)
-  print(nearest_water)
-
   # 7. Сохранение карты
   dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
   ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300)
