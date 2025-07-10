@@ -32,7 +32,8 @@ filter_and_notify <- function(weather_day_df,
     arrange(distance_to_settlement_km) %>%
     slice(1) %>%
     pull(settlement_name)
-
+  
+  library(ggrepel)
   # 5. Генерация карты с помощью ggplot
   plot_nearest_fire_map(fire_dist, get_all_places(), get_all_waterbodies()) 
   
