@@ -20,7 +20,6 @@ main <- function() {
         stop("Прерываю выполнение.")
       })
     }
-    # Используем require вместо library, чтобы избежать stack overflow
     suppressPackageStartupMessages(
       if (!require(pkg, character.only = TRUE)) {
         stop("❌ Не удалось загрузить пакет: ", pkg)
@@ -106,11 +105,10 @@ main <- function() {
   }
   message("✅ Шаг 9: Водоёмы загружены")
 
-  leaflet_nearest_fire_map(fire_with_distances, places_sf, water_sf)
-  message("✅ Шаг 10: Карта построена и сохранена")
+  # Убрали вызов leaflet_nearest_fire_map()
 
   filter_and_notify(fire_with_distances)
-  message("✅ Шаг 11: Telegram-уведомление отправлено")
+  message("✅ Шаг 10: Telegram-уведомление отправлено")
 
   write(paste(Sys.time(), "✅ Успешно завершено"), file = "last_success.log", append = TRUE)
 }
