@@ -5,22 +5,22 @@ load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
     stop("❌ Переменные CDS_USER_ID или CDS_API_KEY не заданы.")
   }
 
-  # Установка ключа для ecmwfr
+  # Установка ключа
   ecmwfr::wf_set_key(user = user_id, key = api_key)
 
   data_dir <- file.path(getwd(), "data")
   if (!dir.exists(data_dir)) {
-    dir.create(data_dir)
+    dir.create(data_dir, recursive = TRUE)
     message("✅ Создана директория 'data'")
   }
 
-  start_date <- Sys.Date() - 12      
-  end_date <- start_date + 6     
+  start_date <- Sys.Date() - 12
+  end_date <- start_date + 6
   dates_seq <- seq.Date(from = start_date, to = end_date, by = "day")
 
-  file_name <- paste0("era5_data_", format(start_date, "%Y%m%d"),
-                      "_to_", format(end_date, "%Y%m%d"), ".nc")
-  target_path <- file.path(data_dir, file_name)
+  zip_name <- paste0("era5_data_", format(start_date, "%Y%m%d"),
+                     "_to_", format(end_date, "%Y%m%d"), ".zip")
+  zip_path <- file.path(tempdir(), zip_name)
 
   request <- list(
     dataset_short_name = "reanalysis-era5-land",
@@ -37,20 +37,29 @@ load_cds_data <- function(user_id = Sys.getenv("CDS_USER_ID"),
       "leaf_area_index_high_vegetation",
       "leaf_area_index_low_vegetation"
     ),
-    year = format(start_date, "%Y"),   
-    month = format(start_date, "%m"),  
-    day = format(dates_seq, "%d"),     
+    year = format(start_date, "%Y"),
+    month = format(start_date, "%m"),
+    day = format(dates_seq, "%d"),
     time = sprintf("%02d:00", 0:23),
     area = c(56.5, 108, 49, 120),
     format = "netcdf",
-    target = file_name
+    target = zip_name
   )
 
   tryCatch({
+    # Загружаем zip-файл
     result <- ecmwfr::wf_request(request = request, user = user_id)
     message("✅ Данные успешно загружены: ", result)
-    file.rename(result, target_path)
-    message("📦 Файл перемещён в: ", target_path)
+
+    # Разархивируем
+    unzip(result, exdir = data_dir)
+    nc_files <- list.files(data_dir, pattern = "\\.nc$", full.names = TRUE)
+
+    if (length(nc_files) == 0) {
+      stop("❌ Нет .nc файлов после распаковки архива!")
+    }
+
+    message("📦 Файл перемещён в: ", nc_files[1])
   }, error = function(e) {
     message("❌ Ошибка загрузки ERA5: ", e$message)
   })
