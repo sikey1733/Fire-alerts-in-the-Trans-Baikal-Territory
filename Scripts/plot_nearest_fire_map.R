@@ -1,5 +1,9 @@
 # Функция для построения карты ближайшего пожара, населённого пункта и водоёма
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggmap.png") {
+  if (!requireNamespace("ggmap", quietly = TRUE)) {
+  install.packages("ggmap")
+}
+library(ggmap)
   # Проверка данных
   if (is.null(fires_sf) || nrow(fires_sf) == 0) {
     message("❌ Нет данных о пожарах")
@@ -14,7 +18,6 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     return(NULL)
   }
   
-  library(ggmap)
   library(ggplot2)
   library(sf)
   
@@ -49,7 +52,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   basemap <- get_stadiamap(
   bbox = c(left = lon_min, bottom = lat_min, right = lon_max, top = lat_max),
   zoom = 10,
-  maptype = "stamen_terrain"  # также можно "stamen_toner_lite", "stamen_watercolor"
+  maptype = "stamen_terrain"  # или "stamen_toner_lite", "stamen_watercolor"
   )
   
   # 6. Преобразование sf в data.frame с координатами для ggplot
