@@ -1,11 +1,13 @@
 # Функция для построения карты ближайшего пожара, населённого пункта и водоёма
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
+  # Загрузка необходимых пакетов
   required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid")
   for (pkg in required_packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
   }
 
+  # Проверка наличия данных
   if (is.null(fires_sf) || nrow(fires_sf) == 0) {
     message("❌ Нет данных о пожарах")
     return(NULL)
@@ -19,6 +21,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     return(NULL)
   }
 
+  # Нахождение ближайшего пожара
   nearest_fire <- fires_sf %>%
     filter(distance_to_settlement_km == min(distance_to_settlement_km, na.rm = TRUE)) %>%
     slice(1)
@@ -30,10 +33,12 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     return(NULL)
   }
 
+  # Нахождение ближайшего водоёма
   fire_geom <- st_geometry(nearest_fire)
   water_sf$dist_to_fire <- as.numeric(st_distance(water_sf, fire_geom))
   nearest_water <- water_sf[which.min(water_sf$dist_to_fire), ]
 
+  # Определение области для карты
   bbox <- st_bbox(nearest_fire)
   expand_factor <- 0.1
   lon_min <- max(-180, bbox["xmin"] - expand_factor)
@@ -41,25 +46,27 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   lat_min <- max(-85, bbox["ymin"] - expand_factor)
   lat_max <- min(85, bbox["ymax"] + expand_factor)
 
-  # Получаем тайлы из maptiles
+  # Получение тайлов карты
   tiles_raster <- maptiles::get_tiles(
     fires_sf,
     provider = "OpenStreetMap",
-    zoom = 10,
+    zoom = 10,  # Можно увеличить zoom для более детализированных карт
     crop = TRUE
   )
 
-  # Преобразуем в растровый объект grob для ggplot
-  tiles_grob <- grid::rasterGrob(tiles_raster, 
+  # Преобразуем растровые тайлы в grob
+  tiles_grob <- grid::rasterGrob(tiles_raster,
                                  width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
 
+  # Координаты объектов
   fire_coords <- st_coordinates(nearest_fire) %>% as.data.frame()
   place_coords <- st_coordinates(nearest_place) %>% as.data.frame()
   water_coords <- st_coordinates(st_centroid(nearest_water)) %>% as.data.frame()
 
+  # Построение карты
   p <- ggplot() +
-    annotation_custom(tiles_grob, 
-                      xmin = lon_min, xmax = lon_max, 
+    annotation_custom(tiles_grob,
+                      xmin = lon_min, xmax = lon_max,
                       ymin = lat_min, ymax = lat_max) +
     coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max), expand = FALSE) +
     geom_point(data = fire_coords, aes(X, Y), color = "red", size = 4, shape = 8) +
@@ -80,6 +87,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
       plot.caption = element_text(size = 12)
     )
 
+  # Сохранение карты
   dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
   ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300)
   message("✅ Карта сохранена: ", output_path)
