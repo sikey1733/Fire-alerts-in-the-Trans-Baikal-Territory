@@ -1,8 +1,7 @@
 # Функция-обертка на основе filter_critical_fires_dynamic для отправки уведомления
 filter_and_notify <- function(weather_day_df,
                               bot_token = Sys.getenv("TELEGRAM_TOKEN"),
-                              chat_id = Sys.getenv("TELEGRAM_CHAT_ID"),
-                              image_path = "output/nearest_fire_map.png") {
+                              chat_id = Sys.getenv("TELEGRAM_CHAT_ID")) {
   
   if (bot_token == "" || chat_id == "") {
     message("❌ TELEGRAM_TOKEN или TELEGRAM_CHAT_ID не заданы.")
@@ -49,16 +48,4 @@ filter_and_notify <- function(weather_day_df,
   }, error = function(e) {
     message("❌ Ошибка при отправке сообщения в Telegram: ", e$message)
   })
-  
-  # 7. Отправка изображения (если файл существует)
-  if (file.exists(image_path)) {
-    tryCatch({
-      send_telegram_image(bot_token, chat_id, image_path)
-      message("✅ Изображение успешно отправлено в Telegram.")
-    }, error = function(e) {
-      message("❌ Ошибка при отправке изображения в Telegram: ", e$message)
-    })
-  } else {
-    message("⚠️ Файл изображения не найден: ", image_path)
-  }
 }
