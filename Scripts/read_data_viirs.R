@@ -19,5 +19,12 @@ read_data_viirs <- function(data_dir = "data/") {
     return(NULL)
   })
   
+  required_cols <- c("longitude", "latitude", "confidence")
+  missing_cols <- setdiff(required_cols, names(data))
+  if (length(missing_cols) > 0) {
+    message("В файле отсутствуют необходимые колонки: ", paste(missing_cols, collapse = ", "))
+    return(NULL)
+  }
+  
   return(data)
 }
