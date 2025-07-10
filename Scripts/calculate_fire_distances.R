@@ -1,4 +1,5 @@
-calculate_fire_distances <- function(csv_data_dir = "data/",
+calculate_fire_distances <- function(region_names,
+                                     csv_data_dir = "data/",
                                      places_cache = "data/places.gpkg",
                                      water_cache = "data/waterbodies.gpkg") {
   fire_df <- read_data_viirs(csv_data_dir)
@@ -8,13 +9,6 @@ calculate_fire_distances <- function(csv_data_dir = "data/",
   }
   
   fires_sf <- st_as_sf(fire_df, coords = c("longitude", "latitude"), crs = 4326)
-  
-  region_names <- c(
-    "Забайкальский край, Россия",
-    "Республика Бурятия, Россия",
-    "Амурская область, Россия",
-    "Иркутская область, Россия"
-  )
   
   places_sf <- get_all_places(region_names, save_path = places_cache)
   if (is.null(places_sf)) {
