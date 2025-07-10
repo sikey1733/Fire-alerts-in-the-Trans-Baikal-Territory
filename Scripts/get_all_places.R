@@ -1,8 +1,11 @@
-# Получение населённых пунктов OSM
 get_all_places <- function(region_names, save_path = "data/places.gpkg") {
   if (file.exists(save_path)) {
     message("Загружаю населённые пункты из файла: ", save_path)
     places <- st_read(save_path, quiet = TRUE)
+    
+    # Фильтрация по кириллице
+    places <- places[grepl("[А-Яа-яЁё]", places$name), ]
+    
     return(places)
   }
   
@@ -17,9 +20,14 @@ get_all_places <- function(region_names, save_path = "data/places.gpkg") {
     })
     
     if (!is.null(result) && !is.null(result$osm_points)) {
-      return(result$osm_points %>%
-               select(name, place, geometry) %>%
-               st_transform(4326))
+      df <- result$osm_points %>%
+        select(name, place, geometry) %>%
+        st_transform(4326)
+      
+      # Фильтрация по кириллице
+      df <- df[grepl("[А-Яа-яЁё]", df$name), ]
+      
+      return(df)
     }
     return(NULL)
   })
