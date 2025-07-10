@@ -60,11 +60,11 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
 
   message(sprintf("BBox: left=%.4f, bottom=%.4f, right=%.4f, top=%.4f", lon_min, lat_min, lon_max, lat_max))
 
-  # 5. Получение тайлов с Stadia Maps (Stamen Terrain)
-  basemap <- get_stadiamap(
-    bbox = c(left = lon_min, bottom = lat_min, right = lon_max, top = lat_max),
-    zoom = 10,
-    maptype = "stamen_terrain"
+  # 5. Получение тайлов OpenStreetMap через get_map (без API-ключей)
+  basemap <- get_map(
+    location = c(left = lon_min, bottom = lat_min, right = lon_max, top = lat_max),
+    source = "osm",
+    zoom = 10
   )
 
   # 6. Координаты
