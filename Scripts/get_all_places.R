@@ -1,7 +1,7 @@
 get_all_places <- function(region_names, save_path = "data/places.gpkg") {
   if (file.exists(save_path)) {
     message("Загружаю населённые пункты из файла: ", save_path)
-    places <- st_read(save_path, quiet = TRUE)
+    places <- sf::st_read(save_path, quiet = TRUE)
     
     # Фильтрация по кириллице
     places <- places[grepl("[А-Яа-яЁё]", places$name), ]
@@ -21,11 +21,9 @@ get_all_places <- function(region_names, save_path = "data/places.gpkg") {
     
     if (!is.null(result) && !is.null(result$osm_points)) {
       df <- result$osm_points %>%
-        select(name, place, geometry) %>%
-        st_transform(4326)
-      
-      # Добавляем колонку с регионом
-      df$region_name <- name
+        # Добавляем поле addr:region, если есть (в R это addr.region)
+        dplyr::select(name, place, geometry, dplyr::everything()) %>%
+        sf::st_transform(4326)
       
       # Фильтрация по кириллице
       df <- df[grepl("[А-Яа-яЁё]", df$name), ]
@@ -41,10 +39,10 @@ get_all_places <- function(region_names, save_path = "data/places.gpkg") {
     return(NULL)
   }
   
-  combined <- bind_rows(places_list)
+  combined <- dplyr::bind_rows(places_list)
   
   dir.create(dirname(save_path), showWarnings = FALSE, recursive = TRUE)
-  st_write(combined, save_path, delete_dsn = TRUE, quiet = TRUE)
+  sf::st_write(combined, save_path, delete_dsn = TRUE, quiet = TRUE)
   message("Населённые пункты сохранены в: ", save_path)
   
   return(combined)
