@@ -58,7 +58,7 @@ jobs:
           echo "👉 Устанавливаю остальные зависимости"
           Rscript -e 'install.packages(c(
             "tidyverse", "stars", "openair", "lubridate",
-            "osmdata", "sf", "geosphere", "ggplot2"
+            "osmdata", "sf", "geosphere", "ggplot2",
             "ggspatial", "ggrepel"
             ), repos = "https://cloud.r-project.org")'
 
