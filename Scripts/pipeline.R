@@ -7,7 +7,7 @@ main <- function() {
     "lubridate", "httr", "geosphere", "osmdata", "ggplot2"
   )
 
-  # 📦 Установка и загрузка пакетов
+  # 📦 Функция установки и загрузки пакета (без рекурсивного require)
   install_and_load <- function(pkg) {
     message("🔄 Проверка пакета: ", pkg)
     if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -19,13 +19,14 @@ main <- function() {
         stop("Прерываю выполнение.")
       })
     }
-    suppressPackageStartupMessages(
-      if (!require(pkg, character.only = TRUE)) {
-        stop("❌ Не удалось загрузить пакет: ", pkg)
-      }
-    )
+    # Загружаем пакет безопасно, без вложенных вызовов
+    success <- suppressPackageStartupMessages(require(pkg, character.only = TRUE))
+    if (!success) {
+      stop("❌ Не удалось загрузить пакет: ", pkg)
+    }
   }
 
+  # 🔁 Проверка и установка всех пакетов
   for (pkg in required_packages) {
     install_and_load(pkg)
   }
@@ -103,7 +104,7 @@ main <- function() {
   }
   message("✅ Шаг 9: Водоёмы загружены")
 
-  # 📨 Только Telegram-уведомление
+  # 📨 Только Telegram-уведомление (без отправки изображений)
   filter_and_notify(fire_with_distances)
   message("✅ Шаг 10: Telegram-уведомление отправлено")
 
