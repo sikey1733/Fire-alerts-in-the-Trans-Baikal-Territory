@@ -1,5 +1,8 @@
 # Функция для построения интерактивной карты ближайшего пожара, населённого пункта и водоёма:
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
+  if (!requireNamespace("ggrepel", quietly = TRUE)) {
+    install.packages("ggrepel", repos = "https://cloud.r-project.org")
+  }
   library(ggrepel)
   if (is.null(fires_sf) || nrow(fires_sf) == 0) {
     message("Нет данных о пожарах")
