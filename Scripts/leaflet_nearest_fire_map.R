@@ -1,11 +1,11 @@
 # Функция для построения интерактивной карты ближайшего пожара, населённого пункта и водоёма:
-leaflet_nearest_fire_map <- function(fires_sf, places_sf, water_sf) {
+plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
   if (is.null(fires_sf) || nrow(fires_sf) == 0) {
     message("Нет данных о пожарах")
     return(NULL)
   }
 
-  # Выбор ближайшего пожара
+  # 1. Выбор ближайшего пожара
   nearest_fire <- fires_sf %>%
     filter(distance_to_settlement_km == min(distance_to_settlement_km, na.rm = TRUE)) %>%
     slice(1)
@@ -17,40 +17,32 @@ leaflet_nearest_fire_map <- function(fires_sf, places_sf, water_sf) {
   water_sf$dist_to_fire <- as.numeric(st_distance(water_sf, fire_geom))
   nearest_water <- water_sf[which.min(water_sf$dist_to_fire), ]
 
-  message("🗺️ Строю интерактивную карту ближайшего водоёма, населённого пункта и возгорания...")
+  # 2. Объединение объектов
+  all_features <- rbind(
+    st_sf(type = "Пожар", geometry = st_geometry(nearest_fire)),
+    st_sf(type = "Населённый пункт", geometry = st_geometry(nearest_place)),
+    st_sf(type = "Водоём", geometry = st_centroid(st_geometry(nearest_water)))  # центроид полигона
+  )
 
-  # Построение карты
-  map <- leaflet() %>%
-    addTiles() %>%
-    addCircleMarkers(data = nearest_fire, color = "red", radius = 10, label = "🔥 Пожар") %>%
-    addCircleMarkers(data = nearest_place, color = "blue", radius = 7,
-                     label = ~paste("🏘️ Населённый пункт:", nearest_place_name)) %>%
-    addPolygons(data = nearest_water, color = "cyan", weight = 2, fillOpacity = 0.3,
-                label = "💧 Водоём") %>%
-    addLegend(position = "bottomright",
-              colors = c("red", "blue", "cyan"),
-              labels = c("Пожар", "Населённый пункт", "Водоём"),
-              opacity = 0.8)
+  # 3. Построение карты
+  p <- ggplot() +
+    geom_sf(data = nearest_water, fill = "cyan", color = "darkcyan", alpha = 0.4) +
+    geom_sf(data = nearest_place, color = "blue", size = 3) +
+    geom_sf(data = nearest_fire, color = "red", size = 3) +
+    geom_text_repel(data = st_coordinates(st_centroid(nearest_place)) %>% as.data.frame() %>% mutate(label = nearest_place_name),
+                    aes(X, Y, label = label), color = "blue", size = 4) +
+    annotation_scale(location = "bl", width_hint = 0.3) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+                           style = north_arrow_fancy_orienteering) +
+    labs(title = "🔥 Ближайший пожар, населённый пункт и водоём",
+         caption = paste0("📍 Населённый пункт: ", nearest_place_name,
+                          "\n💧 Водоём: ", round(nearest_fire$distance_to_water_km, 2), " км")) +
+    theme_minimal()
 
-  # Создание папки, если нужно
-  dir.create("output", showWarnings = FALSE, recursive = TRUE)
+  # 4. Сохранение
+  dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
+  ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300)
+  message("✅ Карта сохранена: ", output_path)
 
-  # Сохранение HTML-карты
-  tryCatch({
-    htmlwidgets::saveWidget(map, file = "output/nearest_fire_map.html", selfcontained = TRUE)
-    message("✅ Карта сохранена как HTML: output/nearest_fire_map.html")
-  }, error = function(e) {
-    message("❌ Ошибка сохранения HTML карты: ", e$message)
-  })
-
-  # Сохранение PNG через webshot
-  tryCatch({
-    webshot::webshot("output/nearest_fire_map.html", file = "output/nearest_fire_map.png",
-                     vwidth = 1000, vheight = 700)
-    message("✅ PNG-карта сохранена: output/nearest_fire_map.png")
-  }, error = function(e) {
-    message("⚠️ Ошибка сохранения PNG карты: ", e$message)
-  })
-
-  return(map)
+  return(p)
 }
