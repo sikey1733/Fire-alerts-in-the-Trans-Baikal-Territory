@@ -21,15 +21,17 @@ get_all_places <- function(region_names, save_path = "data/places.gpkg") {
     })
 
     if (!is.null(result) && !is.null(result$osm_points)) {
-      df <- result$osm_points %>%
-        dplyr::select(
-          name,
-          place,
-          `addr:region`,  # выбираем регион из тегов
-          geometry,
-          dplyr::everything()
-        ) %>%
-        dplyr::rename(region_name = `addr:region`) %>%
+      df <- result$osm_points
+
+      # Проверка и добавление region_name (если есть addr:region)
+      if ("addr:region" %in% names(df)) {
+        df$region_name <- df$`addr:region`
+      } else {
+        df$region_name <- NA_character_
+      }
+
+      df <- df %>%
+        dplyr::select(name, place, region_name, geometry, dplyr::everything()) %>%
         sf::st_transform(4326)
 
       # Фильтрация по кириллице
