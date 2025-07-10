@@ -134,7 +134,7 @@ main <- function() {
   message("✅ Шаг 9 завершён")
 
   message("🚀 Шаг 10: Отправка уведомления Telegram")
-  filter_and_notify(fire_with_distances)
+  filter_and_notify(cleaned_data)
   message("✅ Шаг 10 завершён")
 
   write(paste(Sys.time(), "✅ Успешно завершено"), file = "last_success.log", append = TRUE)
