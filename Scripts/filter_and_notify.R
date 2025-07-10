@@ -34,7 +34,7 @@ filter_and_notify <- function(weather_day_df,
     pull(settlement_name)
 
   # 5. Генерация карты с помощью ggplot
-  plot_nearest_fire_map(fire_dist, get_all_places_cached(), get_all_waterbodies_cached())  # используем кэшированные функции
+  plot_nearest_fire_map(fire_dist, get_all_places_cached(), get_all_waterbodies_cached()) 
   
   # 6. Составление текстового сообщения
   msg <- paste0(
