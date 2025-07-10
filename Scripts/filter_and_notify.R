@@ -26,22 +26,29 @@ filter_and_notify <- function(weather_day_df,
   fire_dist_min <- min(fire_dist$distance_to_settlement_km, na.rm = TRUE)
   fire_dist_min_water <- min(fire_dist$distance_to_water_km, na.rm = TRUE)
 
-  # 4. Получение ближайшего населённого пункта
-  nearest_name <- fire_dist %>%
+  # 4. Получение ближайшего населённого пункта и региона
+  nearest_fire <- fire_dist %>%
     filter(!is.na(settlement_name)) %>%
     arrange(distance_to_settlement_km) %>%
-    slice(1) %>%
-    pull(settlement_name)
+    slice(1)
+
+  nearest_name <- nearest_fire$settlement_name
+  nearest_region <- if ("settlement_region" %in% colnames(fire_dist)) {
+    nearest_fire$settlement_region
+  } else {
+    NA_character_
+  }
   
   library(ggrepel)
   # 5. Генерация карты с помощью ggplot
   plot_nearest_fire_map(fire_dist, get_all_places(), get_all_waterbodies()) 
   
-  # 6. Составление текстового сообщения
+  # 6. Составление текстового сообщения с регионом
   msg <- paste0(
     "🔥 *Уровень риска распространения огня:* ", factor_data, "\n",
     "📍 *Минимальное расстояние до населённого пункта:* ", round(fire_dist_min, 2), " км\n",
-    "🏘️ *Ближайший населённый пункт:* ", nearest_name, "\n",
+    "🏘️ *Ближайший населённый пункт:* ", nearest_name,
+    if (!is.na(nearest_region)) paste0(" (", nearest_region, ")") else "", "\n",
     "💧 *Ближайший водоём:* ", round(fire_dist_min_water, 2), " км"
   )
 
