@@ -40,13 +40,25 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   water_sf$dist_to_fire <- as.numeric(st_distance(water_sf, fire_geom))
   nearest_water <- water_sf[which.min(water_sf$dist_to_fire), ]
 
-  # 4. Расширенный bbox
+  # 4. Расширенный bbox с проверками
   bbox <- st_bbox(nearest_fire)
   expand_factor <- 0.1
-  lon_min <- bbox["xmin"] - expand_factor
-  lon_max <- bbox["xmax"] + expand_factor
-  lat_min <- bbox["ymin"] - expand_factor
-  lat_max <- bbox["ymax"] + expand_factor
+  lon_min <- max(-180, bbox["xmin"] - expand_factor)
+  lon_max <- min(180, bbox["xmax"] + expand_factor)
+  lat_min <- max(-85, bbox["ymin"] - expand_factor)
+  lat_max <- min(85, bbox["ymax"] + expand_factor)
+
+  # Минимальное расширение bbox, чтобы не было нулевого размера
+  if ((lon_max - lon_min) < 0.01) {
+    lon_min <- lon_min - 0.01
+    lon_max <- lon_max + 0.01
+  }
+  if ((lat_max - lat_min) < 0.01) {
+    lat_min <- lat_min - 0.01
+    lat_max <- lat_max + 0.01
+  }
+
+  message(sprintf("BBox: left=%.4f, bottom=%.4f, right=%.4f, top=%.4f", lon_min, lat_min, lon_max, lat_max))
 
   # 5. Получение тайлов с Stadia Maps (Stamen Terrain)
   basemap <- get_stadiamap(
