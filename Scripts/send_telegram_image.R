@@ -1,33 +1,34 @@
 # Функция отправки изображения в Telegram с использованием последнего файла
 send_telegram_image <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
                                 chat_id = Sys.getenv("TELEGRAM_CHAT_ID"), 
-                                directory = "output/") {
-  image_path <- get_latest_file(directory)
+                                image_path = "output/nearest_fire_map_ggplot.png") {
   
-  if (is.null(image_path)) {
-    warning("Нет изображений для отправки.")
+  if (!file.exists(image_path)) {
+    warning("Файл для отправки не найден: ", image_path)
     return(FALSE)
   }
   
   url <- paste0("https://api.telegram.org/bot", bot_token, "/sendPhoto")
   
   tryCatch({
-    res <- httr::POST(url, 
-              body = list(
-                chat_id = chat_id,
-                photo = httr::upload_file(image_path)
-              ), 
-              encode = "multipart")
+    res <- httr::POST(
+      url,
+      body = list(
+        chat_id = chat_id,
+        photo = httr::upload_file(image_path)
+      ),
+      encode = "multipart"
+    )
     
     if (httr::status_code(res) == 200) {
-      message("Изображение успешно отправлено в Telegram.")
+      message("✅ Изображение успешно отправлено в Telegram: ", basename(image_path))
       return(TRUE)
     } else {
-      warning("Ошибка при отправке изображения в Telegram: ", httr::content(res, "text"))
+      warning("❌ Ошибка при отправке изображения в Telegram: ", httr::content(res, "text"))
       return(FALSE)
     }
   }, error = function(e) {
-    warning("Ошибка при попытке отправить изображение: ", e$message)
+    warning("❌ Ошибка при попытке отправить изображение: ", e$message)
     return(FALSE)
   })
 }
