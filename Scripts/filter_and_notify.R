@@ -57,7 +57,7 @@ filter_and_notify <- function(weather_day_df,
   map_path <- "output/nearest_fire_map_ggplot.png"
   if (file.exists(map_path)) {
     tryCatch({
-      send_telegram_image(bot_token, chat_id, map_path)
+      send_telegram_image(bot_token, chat_id, image_path = map_path)
       message("✅ Изображение карты отправлено в Telegram.")
     }, error = function(e) {
       message("⚠️ Ошибка при отправке изображения: ", e$message)
