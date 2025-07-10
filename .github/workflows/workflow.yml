@@ -55,13 +55,9 @@ jobs:
 
           echo "👉 Устанавливаю остальные зависимости"
           Rscript -e 'install.packages(c(
-            "tidyverse", "stars", "openair", "lubridate", 
-            "osmdata", "sf", "leaflet", "geosphere", "htmlwidgets", 
-            "webshot", "ggplot2", "rmarkdown", "xml2"
+            "tidyverse", "stars", "openair", "lubridate",
+            "osmdata", "sf", "geosphere", "ggplot2"
           ), repos = "https://cloud.r-project.org")'
-
-          echo "👉 Устанавливаю PhantomJS"
-          Rscript -e 'webshot::install_phantomjs()'
 
           echo "🚀 Запуск скрипта обработки"
           Rscript Scripts/pipeline.R
