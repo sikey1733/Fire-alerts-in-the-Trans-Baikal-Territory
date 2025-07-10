@@ -1,7 +1,8 @@
+# Расчет расстояний
 calculate_fire_distances <- function(region_names,
-                                    csv_data_dir = "data/",
-                                    places_cache = "data/places.gpkg",
-                                    water_cache = "data/waterbodies.gpkg") {
+                                     csv_data_dir = "data/",
+                                     places_cache = "data/places.gpkg",
+                                     water_cache = "data/waterbodies.gpkg") {
   fire_df <- read_data_viirs(csv_data_dir)
   if (is.null(fire_df)) {
     message("Нет данных о пожарах.")
@@ -21,10 +22,11 @@ calculate_fire_distances <- function(region_names,
     message("Не удалось загрузить водоёмы.")
     return(NULL)
   }
-  
+
+  # Центроиды водоёмов
   water_points <- st_centroid(water_sf)
-  
-  # Расстояния
+
+  # Расчёты расстояний
   dist_places <- st_distance(fires_sf, places_sf)
   dist_water <- st_distance(fires_sf, water_points)
   
@@ -32,13 +34,21 @@ calculate_fire_distances <- function(region_names,
   nearest_place_indices <- apply(dist_places, 1, which.min)
   nearest_place_names <- places_sf$name[nearest_place_indices]
   
+  # 🟢 Новый блок: добавим регион ближайшего населённого пункта
+  if ("region_name" %in% colnames(places_sf)) {
+    nearest_region_names <- places_sf$region_name[nearest_place_indices]
+  } else {
+    nearest_region_names <- NA_character_
+  }
+
   min_water_dists <- apply(dist_water, 1, min)
-  
+
+  # Запись в результирующий sf
   fires_sf$distance_to_settlement_km <- round(as.numeric(min_place_dists) / 1000, 2)
   fires_sf$settlement_name <- nearest_place_names
-  
+  fires_sf$settlement_region <- nearest_region_names  # 🟢 Регион
   fires_sf$distance_to_water_km <- round(as.numeric(min_water_dists) / 1000, 2)
-  
+
   message("Готово! Найдено точек: ", nrow(fires_sf))
   
   return(fires_sf)
