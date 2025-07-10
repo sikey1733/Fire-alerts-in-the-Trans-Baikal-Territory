@@ -24,6 +24,9 @@ get_all_places <- function(region_names, save_path = "data/places.gpkg") {
         select(name, place, geometry) %>%
         st_transform(4326)
       
+      # Добавляем колонку с регионом
+      df$region_name <- name
+      
       # Фильтрация по кириллице
       df <- df[grepl("[А-Яа-яЁё]", df$name), ]
       
