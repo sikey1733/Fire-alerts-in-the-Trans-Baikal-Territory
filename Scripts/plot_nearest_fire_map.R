@@ -46,10 +46,10 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   lat_max <- bbox["ymax"] + expand_factor
   
   # 5. Загрузка тайлов (используем Stamen Terrain, можно заменить на "toner-lite" или др.)
-  basemap <- get_stamenmap(
-    bbox = c(left = lon_min, bottom = lat_min, right = lon_max, top = lat_max),
-    zoom = 10,
-    maptype = "terrain"
+  basemap <- get_stadiamap(
+  bbox = c(left = lon_min, bottom = lat_min, right = lon_max, top = lat_max),
+  zoom = 10,
+  maptype = "stamen_terrain"  # также можно "stamen_toner_lite", "stamen_watercolor"
   )
   
   # 6. Преобразование sf в data.frame с координатами для ggplot
