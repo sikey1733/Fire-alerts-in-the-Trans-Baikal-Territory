@@ -1,14 +1,13 @@
 main <- function() {
   message("🚀 Запуск обработки данных...")
 
-  # 📦 Список всех необходимых пакетов
+  # 📦 Список необходимых пакетов (без leaflet, webshot и htmlwidgets)
   required_packages <- c(
     "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
-    "lubridate", "httr", "leaflet", "geosphere", "osmdata",
-    "htmlwidgets", "ggplot2", "webshot"
+    "lubridate", "httr", "geosphere", "osmdata", "ggplot2"
   )
 
-  # 📦 Функция установки и загрузки одного пакета
+  # 📦 Установка и загрузка пакетов
   install_and_load <- function(pkg) {
     message("🔄 Проверка пакета: ", pkg)
     if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -27,7 +26,6 @@ main <- function() {
     )
   }
 
-  # 🔁 Проверка и установка всех пакетов
   for (pkg in required_packages) {
     install_and_load(pkg)
   }
@@ -41,7 +39,7 @@ main <- function() {
   lapply(script_paths, source)
   message("✅ Все скрипты загружены.")
 
-  # 📌 Задание регионов
+  # 📌 Регионы анализа
   region_names <- c(
     "Забайкальский край, Россия",
     "Республика Бурятия, Россия",
@@ -105,8 +103,7 @@ main <- function() {
   }
   message("✅ Шаг 9: Водоёмы загружены")
 
-  # Убрали вызов leaflet_nearest_fire_map()
-
+  # 📨 Только Telegram-уведомление
   filter_and_notify(fire_with_distances)
   message("✅ Шаг 10: Telegram-уведомление отправлено")
 
