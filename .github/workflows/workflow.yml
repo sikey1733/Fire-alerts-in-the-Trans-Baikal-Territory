@@ -59,7 +59,8 @@ jobs:
           Rscript -e 'install.packages(c(
             "tidyverse", "stars", "openair", "lubridate",
             "osmdata", "sf", "geosphere", "ggplot2"
-          ), repos = "https://cloud.r-project.org")'
+            "ggspatial", "ggrepel"
+            ), repos = "https://cloud.r-project.org")'
 
           echo "🚀 Запуск скрипта обработки"
           Rscript Scripts/pipeline.R
