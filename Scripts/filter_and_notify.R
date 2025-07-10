@@ -33,12 +33,17 @@ filter_and_notify <- function(weather_day_df,
     slice(1)
 
   nearest_name <- nearest_fire$settlement_name
-  nearest_region <- if ("settlement_region" %in% colnames(fire_dist)) {
-    nearest_fire$settlement_region
-  } else {
-    NA_character_
-  }
   
+  # Надёжное определение региона
+  nearest_region <- NA_character_
+  possible_region_cols <- c("settlement_region", "addr_region", "addr.region", "region_name")
+  for (colname in possible_region_cols) {
+    if (colname %in% colnames(fire_dist)) {
+      nearest_region <- nearest_fire[[colname]]
+      break
+    }
+  }
+
   library(ggrepel)
   # 5. Генерация карты с помощью ggplot
   plot_nearest_fire_map(fire_dist, get_all_places(), get_all_waterbodies()) 
@@ -48,7 +53,7 @@ filter_and_notify <- function(weather_day_df,
     "🔥 *Уровень риска распространения огня:* ", factor_data, "\n",
     "📍 *Минимальное расстояние до населённого пункта:* ", round(fire_dist_min, 2), " км\n",
     "🏘️ *Ближайший населённый пункт:* ", nearest_name,
-    if (!is.na(nearest_region)) paste0(" (", nearest_region, ")") else "", "\n",
+    if (!is.na(nearest_region) && nearest_region != "") paste0(" (", nearest_region, ")") else "", "\n",
     "💧 *Ближайший водоём:* ", round(fire_dist_min_water, 2), " км"
   )
 
