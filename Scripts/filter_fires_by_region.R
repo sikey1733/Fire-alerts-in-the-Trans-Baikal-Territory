@@ -13,7 +13,7 @@ filter_fires_by_region <- function(csv_data_dir = "data/",
   }
   
   # Шаг 2: Фильтрация данных по уровню доверия
-  fire_df <- fire_df %>% filter(confidence %in% c("n", "h", "l"))
+  fire_df <- fire_df %>% filter(confidence %in% c("n", "h"))
   
   if (nrow(fire_df) == 0) {
     message("Нет точек с высоким или нормальным доверием.")
