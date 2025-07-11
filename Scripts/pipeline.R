@@ -12,7 +12,7 @@ main <- function() {
   required_packages <- c(
     "magrittr", "dplyr", "ecmwfr", "stars", "sf", "units",
     "lubridate", "httr", "geosphere", "osmdata", "ggplot2",
-    "maptiles", "terra", "ggspatial"
+    "maptiles", "terra", "ggspatial", "prettymapr"
   )
 
   # Функция проверки и установки пакета
