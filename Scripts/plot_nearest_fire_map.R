@@ -43,7 +43,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   }
 
   p <- ggplot() +
-    ggspatial::annotation_map_tile(type = "cartodbdark", zoomin = -1) +
+    ggspatial::annotation_map_tile(type = "cartolight", zoomin = -1) +
     geom_sf(data = nearest_fire, color = "red", size = 4, shape = 8) +
     geom_sf(data = nearest_place, color = "blue", size = 3) +
     geom_sf(data = st_centroid(nearest_water), color = "cyan", size = 3) +
