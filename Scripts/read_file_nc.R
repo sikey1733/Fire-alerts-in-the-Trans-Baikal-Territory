@@ -1,9 +1,12 @@
+# Чтение NetCDF (.nc) файла с погодными данными
 read_file_nc <- function(data_dir = "data/") {
+  # Проверка, существует ли папка
   if (!dir.exists(data_dir)) {
     message("❌ Папка ", data_dir, " не существует.")
     return(NULL)
   }
 
+  # Получаем список всех .nc файлов
   file_list <- list.files(data_dir, pattern = "\\.nc$", full.names = TRUE)
 
   if (length(file_list) == 0) {
@@ -11,30 +14,29 @@ read_file_nc <- function(data_dir = "data/") {
     return(NULL)
   }
 
-  # Сортировка по дате модификации (последние — первыми)
+  # Сортировка по времени модификации (самые новые — первыми)
   file_list <- file_list[order(file.info(file_list)$mtime, decreasing = TRUE)]
 
-  # Если только один файл — читаем его
+  # Один файл — читаем его и возвращаем
   if (length(file_list) == 1) {
     message("📄 Используется один файл: ", basename(file_list[1]))
     file_data <- read_stars(file_list[1]) %>% as.data.frame(xy = TRUE)
     return(file_data)
   }
 
-  # Если два и более файлов — объединяем два последних
+  # Два и более файла — читаем два самых новых
   message("📄 Используются два последних файла: ", basename(file_list[1]), " и ", basename(file_list[2]))
-
   file_1 <- read_stars(file_list[1]) %>% as.data.frame(xy = TRUE)
   file_2 <- read_stars(file_list[2]) %>% as.data.frame(xy = TRUE)
 
-  # Проверка на совпадение координат
+  # Проверка совпадения координат
   coords_match <- all(file_1$x == file_2$x) && all(file_1$y == file_2$y)
   if (!coords_match) {
     message("⚠️ Координаты не совпадают! Проверьте .nc файлы.")
     return(NULL)
   }
 
-  # Объединение по общим ключевым колонкам
+  # Поиск общих ключей (x, y, valid_time)
   common_cols <- intersect(names(file_1), names(file_2))
   key_cols <- intersect(c("x", "y", "valid_time"), common_cols)
 
@@ -43,6 +45,7 @@ read_file_nc <- function(data_dir = "data/") {
     return(NULL)
   }
 
+  # Объединение по ключевым столбцам
   data_join <- full_join(file_1, file_2, by = key_cols)
 
   if (nrow(data_join) > 0) {
