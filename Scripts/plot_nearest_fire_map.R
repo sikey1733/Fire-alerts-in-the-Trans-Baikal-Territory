@@ -1,7 +1,7 @@
 # Функция строит карту с ближайшим пожаром, населённым пунктом и водоёмом и сохраняет в файл
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
   # Загружает необходимые пакеты, устанавливая при отсутствии
-  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid", "terra")
+  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid", "terra", "raster")
   for (pkg in required_packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
@@ -68,8 +68,12 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   }
 
   # Преобразует растровый слой в grob для добавления в ggplot
-  tiles_grob <- grid::rasterGrob(tiles_raster,
-                                 width = unit(1, "npc"), height = unit(1, "npc"), interpolate = TRUE)
+  tiles_matrix <- as.matrix(raster::raster(tiles_raster[[1]]))
+  tiles_grob <- grid::rasterGrob(
+    tiles_matrix,
+    width = unit(1, "npc"), height = unit(1, "npc"),
+    interpolate = TRUE
+  )
 
   # Получает координаты пожара, населённого пункта и водоёма
   fire_coords <- st_coordinates(nearest_fire) %>% as.data.frame()
