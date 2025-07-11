@@ -27,14 +27,9 @@ filter_critical_fires_dynamic <- function(fire_sf, weather_day_df, region_names 
   if (nrow(critical_fires) == 0) {
     message("❌ Нет критических пожаров по расстоянию.")
     return(NULL)
-  }
+  }  
   
-  # Если риск не высокий — возвращаем NULL
-  if (risk_flag != "Высокий риск") {
-    message("⚠️ Риск пожара низкий или средний - критических пожаров нет.")
-    return(NULL)
-  }
-  
+  # Добавление флага риска в данные
   critical_fires$risk_flag <- risk_flag
   return(critical_fires)
 }
