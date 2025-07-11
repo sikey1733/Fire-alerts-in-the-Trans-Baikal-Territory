@@ -1,8 +1,10 @@
-# Функция отправки сообщения в Telegram
+# Функция отправляет текстовое сообщение в Telegram через бот API
 send_telegram_message <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
                                   chat_id = Sys.getenv("TELEGRAM_CHAT_ID"), message_text) {
+  # Формирует URL для запроса к Telegram Bot API
   url <- paste0("https://api.telegram.org/bot", bot_token, "/sendMessage")
   
+  # Выполняет POST-запрос с параметрами: chat_id, текст сообщения, форматирование Markdown
   tryCatch({
     res <- httr::POST(url, body = list(
       chat_id = chat_id,
@@ -10,6 +12,7 @@ send_telegram_message <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
       parse_mode = "Markdown"
     ), encode = "form")
     
+    # Проверяет статус ответа — 200 значит успешно
     if (httr::status_code(res) == 200) {
       message("Сообщение успешно отправлено в Telegram.")
       return(TRUE)
@@ -18,6 +21,7 @@ send_telegram_message <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
       return(FALSE)
     }
   }, error = function(e) {
+    # Обработка ошибок при отправке запроса
     warning("Ошибка при попытке отправить сообщение: ", e$message)
     return(FALSE)
   })
