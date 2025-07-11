@@ -59,7 +59,7 @@ jobs:
           Rscript -e 'install.packages(c(
             "tidyverse", "stars", "openair", "lubridate",
             "osmdata", "sf", "geosphere", "ggplot2",
-            "maptiles", "terra", "ggspatial"
+            "maptiles", "terra", "ggspatial", "prettymapr"
             ), repos = "https://cloud.r-project.org")'
 
           echo "🚀 Запуск скрипта обработки"
