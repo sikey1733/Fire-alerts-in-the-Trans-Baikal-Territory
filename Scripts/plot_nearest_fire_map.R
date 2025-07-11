@@ -68,10 +68,10 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   }
 
   # Преобразует SpatRaster в массив и нормализует значения для ggplot
-tile_array <- terra::as.array(tiles_raster)
+  tile_array <- terra::as.array(tiles_raster)
 
-# Проверка на RGB
-if (length(dim(tile_array)) == 3 && dim(tile_array)[3] == 3) {
+  # Проверка на RGB
+  if (length(dim(tile_array)) == 3 && dim(tile_array)[3] == 3) {
   # Преобразуем в диапазон [0, 1]
   tile_array <- tile_array / 255
   tile_array <- aperm(tile_array, c(2, 1, 3)) # переставляем оси: [x, y, band] → [y, x, band]
