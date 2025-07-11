@@ -1,6 +1,6 @@
 # Функция строит карту с ближайшим пожаром, населённым пунктом и водоёмом и сохраняет в файл
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
-  required_packages <- c("ggplot2", "sf", "dplyr", "ggspatial", "prettymapr")
+  required_packages <- c("ggplot2", "sf", "dplyr", "ggspatial")
   for (pkg in required_packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
@@ -28,6 +28,19 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   lon_max <- bbox["xmax"] + expand_factor
   lat_min <- bbox["ymin"] - expand_factor
   lat_max <- bbox["ymax"] + expand_factor
+
+  # Защита от слишком маленького bbox
+  min_bbox_size <- 0.05
+  if ((lon_max - lon_min) < min_bbox_size) {
+    center_lon <- (lon_min + lon_max) / 2
+    lon_min <- center_lon - min_bbox_size / 2
+    lon_max <- center_lon + min_bbox_size / 2
+  }
+  if ((lat_max - lat_min) < min_bbox_size) {
+    center_lat <- (lat_min + lat_max) / 2
+    lat_min <- center_lat - min_bbox_size / 2
+    lat_max <- center_lat + min_bbox_size / 2
+  }
 
   p <- ggplot() +
     ggspatial::annotation_map_tile(type = "cartodbdark", zoomin = -1) +
