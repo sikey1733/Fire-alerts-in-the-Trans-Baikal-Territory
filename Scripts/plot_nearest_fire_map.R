@@ -23,7 +23,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   nearest_water <- water_sf[which.min(water_sf$dist_to_fire), ]
 
   bbox <- st_bbox(nearest_fire)
-  expand_factor <- 0.1
+  expand_factor <- 0.2
   lon_min <- bbox["xmin"] - expand_factor
   lon_max <- bbox["xmax"] + expand_factor
   lat_min <- bbox["ymin"] - expand_factor
