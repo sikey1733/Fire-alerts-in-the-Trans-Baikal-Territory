@@ -1,36 +1,42 @@
 # Функция определяет дистанцию для риска распространения огня на основе данных за день
-filter_critical_fires_dynamic <- function(weather_day_df) {
-  
-  # Вычисляет уровень риска пожара по погодным данным (функция calc_fire_risk_flag)
-  factor_data <- calc_fire_risk_flag(weather_day_df)
-  
-  # Вычисляет расстояния до населённых пунктов и водоёмов (функция calculate_fire_distances)
-  fire_dist <- calculate_fire_distances()
-  
-  # Проверяет наличие необходимых данных
-  if (is.null(factor_data) || is.null(fire_dist)) {
-    message("Нет данных по погоде или пожарам!")
+filter_critical_fires_dynamic <- function(fire_sf, weather_day_df, region_names) {
+  if (is.null(fire_sf) || nrow(fire_sf) == 0) {
+    message("❌ Нет данных о пожарах для фильтрации.")
     return(NULL)
   }
-  
-  # Определяет минимальное расстояние до населённого пункта и водоёма
-  fire_dist_min <- min(fire_dist$distance_to_settlement_km, na.rm = TRUE)
-  fire_dist_min_water <- min(fire_dist$distance_to_water_km, na.rm = TRUE)
-  
-  # Находит ближайший пожар с известным названием населённого пункта
-  nearest_fire <- fire_dist %>%
-    filter(!is.na(settlement_name)) %>%
-    arrange(distance_to_settlement_km) %>%
-    slice(1)
-  
-  # Извлекает название и регион ближайшего населённого пункта
-  nearest_name <- nearest_fire$settlement_name
-  nearest_region <- if ("settlement_region" %in% colnames(nearest_fire)) {
-    nearest_fire$settlement_region
-  } else {
-    NA_character_
+  if (is.null(weather_day_df) || nrow(weather_day_df) == 0) {
+    message("❌ Нет погодных данных для фильтрации.")
+    return(NULL)
   }
-  
-  # Возвращает объект с расстояниями и дополнительной информацией
-  return(fire_dist)
+
+  # Добавляем расстояния, если их нет
+  if (!("distance_to_settlement_km" %in% colnames(fire_sf)) ||
+      !("distance_to_water_km" %in% colnames(fire_sf))) {
+    fire_sf <- calculate_fire_distances(fire_sf, region_names)
+    if (is.null(fire_sf)) return(NULL)
+  }
+
+  # Рассчитываем флаг риска пожара из погодных данных
+  risk_flag <- calc_fire_risk_flag(weather_day_df)
+
+  # Фильтруем по уровню риска и расстояниям (примерная логика)
+  critical_fires <- fire_sf %>%
+    dplyr::filter(!is.na(distance_to_settlement_km)) %>%
+    dplyr::filter(distance_to_settlement_km < 10) # например, пожары ближе 10 км
+
+  if (nrow(critical_fires) == 0) {
+    message("❌ Нет критических пожаров по расстоянию.")
+    return(NULL)
+  }
+
+  # Можно добавить условие по риску (пример)
+  if (risk_flag != "Высокий риск") {
+    message("⚠️ Риск пожара низкий или средний - критических пожаров нет.")
+    return(NULL)
+  }
+
+  # Добавляем флаг риска в данные
+  critical_fires$risk_flag <- risk_flag
+
+  return(critical_fires)
 }
