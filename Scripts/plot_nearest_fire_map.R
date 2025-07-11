@@ -1,7 +1,7 @@
 # Функция для построения карты ближайшего пожара, населённого пункта и водоёма
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
   # Загрузка необходимых пакетов
-  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid", terra)
+  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid", "terra")
   for (pkg in required_packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
