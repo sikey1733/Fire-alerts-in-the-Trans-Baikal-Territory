@@ -1,32 +1,36 @@
-filter_and_notify <- function(weather_day_df,
+# Фильтрация и отправка данных
+filter_and_notify <- function(fire_sf,
+                              weather_day_df,
                               bot_token = Sys.getenv("TELEGRAM_TOKEN"),
                               chat_id = Sys.getenv("TELEGRAM_CHAT_ID")) {
-
-  # Проверяет наличие токена и ID чата Telegram
+  
   if (bot_token == "" || chat_id == "") {
     message("❌ TELEGRAM_TOKEN или TELEGRAM_CHAT_ID не заданы.")
     return(NULL)
   }
-
-  # 1. Фильтрует критические пожары по погодным данным (возвращает sf с расстояниями)
-  fire_dist <- filter_critical_fires_dynamic(weather_day_df)
+  
+  # 1. Фильтруем критические пожары, используя fire_sf (с расстояниями) и погодные данные
+  fire_dist <- filter_critical_fires_dynamic(fire_sf, weather_day_df, region_names = NULL)  # Можно передавать region_names, если нужно
+  
   if (is.null(fire_dist) || nrow(fire_dist) == 0) {
     message("Нет данных о критических пожарах для отправки уведомления.")
     return(NULL)
   }
-
-  # 2. Находит ближайший пожар с известным населённым пунктом (минимальное расстояние до поселения)
+  
+  # 2. Находим минимальные расстояния для ближайшей точки (по населённому пункту и воде)
+  fire_dist_min <- min(fire_dist$distance_to_settlement_km, na.rm = TRUE)
+  
+  # Ищем ближайший пожар по населённому пункту
   nearest_fire <- fire_dist %>%
     filter(!is.na(settlement_name)) %>%
     arrange(distance_to_settlement_km) %>%
     slice(1)
-
-  # Получаем нужные данные для сообщения из ближайшего пожара
-  nearest_name <- nearest_fire$settlement_name
-  fire_dist_min <- nearest_fire$distance_to_settlement_km
+  
+  # Берём расстояние до ближайшего водоёма именно для этой точки
   fire_dist_min_water <- nearest_fire$distance_to_water_km
-
-  # 3. Безопасно ищет имя региона среди нескольких вариантов названий колонок
+  
+  nearest_name <- nearest_fire$settlement_name
+  
   possible_region_cols <- c("settlement_region", "addr:region", "addr.region", "region_name")
   nearest_region <- NA_character_
   for (colname in possible_region_cols) {
@@ -35,15 +39,15 @@ filter_and_notify <- function(weather_day_df,
       break
     }
   }
-
-  # 4. Повторно вычисляет уровень риска пожара
+  
+  # 3. Вычисляем уровень риска пожара (по погоде)
   factor_data <- calc_fire_risk_flag(weather_day_df)
   if (is.null(factor_data)) factor_data <- "Неизвестен"
-
-  # 5. Генерирует карту ближайшего пожара, населённого пункта и водоёма
+  
+  # 4. Генерируем карту
   plot_nearest_fire_map(fire_dist, get_all_places(), get_all_waterbodies())
-
-  # 6. Формирует текст сообщения с данными о риске и ближайших объектах
+  
+  # 5. Формируем сообщение
   msg <- paste0(
     "🔥 *Уровень риска распространения огня:* ", factor_data, "\n",
     "📍 *Минимальное расстояние до населённого пункта:* ", round(fire_dist_min, 2), " км\n",
@@ -51,16 +55,15 @@ filter_and_notify <- function(weather_day_df,
     if (!is.na(nearest_region) && nearest_region != "") paste0(" (", nearest_region, ")") else "", "\n",
     "💧 *Ближайший водоём:* ", round(fire_dist_min_water, 2), " км"
   )
-
-  # 7. Отправляет текстовое сообщение в Telegram
+  
+  # 6. Отправляем сообщение и изображение
   tryCatch({
     send_telegram_message(bot_token, chat_id, msg)
     message("✅ Сообщение успешно отправлено в Telegram.")
   }, error = function(e) {
     message("❌ Ошибка при отправке текстового сообщения: ", e$message)
   })
-
-  # 8. Отправляет карту изображением в Telegram, если файл существует
+  
   map_path <- "output/nearest_fire_map_ggplot.png"
   if (file.exists(map_path)) {
     tryCatch({
