@@ -1,7 +1,7 @@
 # Функция для построения карты ближайшего пожара, населённого пункта и водоёма
 plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "output/nearest_fire_map_ggplot.png") {
   # Загрузка необходимых пакетов
-  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid")
+  required_packages <- c("ggplot2", "sf", "dplyr", "maptiles", "grid", terra)
   for (pkg in required_packages) {
     if (!requireNamespace(pkg, quietly = TRUE)) install.packages(pkg)
     library(pkg, character.only = TRUE)
@@ -46,13 +46,27 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   lat_min <- max(-85, bbox["ymin"] - expand_factor)
   lat_max <- min(85, bbox["ymax"] + expand_factor)
 
-  # Получение тайлов карты
+  # Проверка: если тайлы уже сохранены — загружаем их, иначе скачиваем
+  cache_file <- "data/maptiles_cache/tiles.tif"
+
+  if (file.exists(cache_file)) {
+  message("📦 Загружаю тайлы из кэша: ", cache_file)
+  tiles_raster <- terra::rast(cache_file)
+  } else {
+  message("🌐 Загружаю тайлы с сервера OpenStreetMap...")
   tiles_raster <- maptiles::get_tiles(
     fires_sf,
     provider = "OpenStreetMap",
-    zoom = 10,  # Можно увеличить zoom для более детализированных карт
-    crop = TRUE
+    zoom = 8,
+    crop = FALSE
   )
+    
+  # Сохранение в кэш
+  dir.create("data/maptiles_cache", showWarnings = FALSE, recursive = TRUE)
+  terra::writeRaster(tiles_raster, cache_file, overwrite = TRUE)
+  message("✅ Тайлы сохранены: ", cache_file)
+  }
+  
 
   # Преобразуем растровые тайлы в grob
   tiles_grob <- grid::rasterGrob(tiles_raster,
