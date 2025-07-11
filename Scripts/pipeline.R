@@ -102,7 +102,7 @@ main <- function() {
   download_viirs_noaa21_375m()
   message("✅ Шаг 5 завершён")
 
-  message("🚀 Шаг 6: Фильтрация пожаров по регионам")
+  # 6. Фильтрация пожаров по регионам
   fire_data <- filter_fires_by_region(region_names = region_names)
   if (is.null(fire_data)) {
     message("❌ Шаг 6: Ошибка фильтрации пожаров")
@@ -110,8 +110,8 @@ main <- function() {
     return()
   }
   message("✅ Шаг 6 завершён")
-
-  message("🚀 Шаг 7: Расчёт расстояний до объектов")
+  
+  # 7. Расчёт расстояний до объектов
   fire_with_distances <- calculate_fire_distances(fire_sf = fire_data, region_names = region_names)
   if (is.null(fire_with_distances)) {
     message("❌ Шаг 7: Ошибка расчёта расстояний")
@@ -139,7 +139,7 @@ main <- function() {
   message("✅ Шаг 9 завершён")
 
   message("🚀 Шаг 10: Отправка уведомления Telegram")
-  filter_and_notify(cleaned_data)
+  filter_and_notify(fire_with_distances, cleaned_data)
   message("✅ Шаг 10 завершён")
 
   # Логируем успешное завершение
