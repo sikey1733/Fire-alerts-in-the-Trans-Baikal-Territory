@@ -10,6 +10,11 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   if (is.null(places_sf) || nrow(places_sf) == 0) return(NULL)
   if (is.null(water_sf) || nrow(water_sf) == 0) return(NULL)
 
+  # Приведение CRS всех данных к WGS84
+  fires_sf <- st_transform(fires_sf, 4326)
+  places_sf <- st_transform(places_sf, 4326)
+  water_sf <- st_transform(water_sf, 4326)
+
   nearest_fire <- fires_sf %>%
     filter(distance_to_settlement_km == min(distance_to_settlement_km, na.rm = TRUE)) %>%
     slice(1)
@@ -46,7 +51,7 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     ggspatial::annotation_map_tile(type = "cartolight", zoomin = -1) +
     geom_sf(data = nearest_fire, color = "red", size = 4, shape = 8) +
     geom_sf(data = nearest_place, color = "blue", size = 3) +
-    geom_sf(data = st_centroid(nearest_water), color = "cyan", size = 3) +
+    geom_sf(data = st_point_on_surface(nearest_water), color = "cyan", size = 3) +
     coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max), expand = FALSE) +
     labs(
       title = "🔥 Ближайший пожар и водоём",
