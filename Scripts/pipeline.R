@@ -101,14 +101,14 @@ main <- function() {
   message("🚀 Шаг 6: Фильтрация пожаров по регионам")
   fire_data <- filter_fires_by_region(region_names = region_names)
   if (is.null(fire_data)) {
-    message("❌ Шаг 6: Ошибка фильтрации пожаров")
-    assign("processing_in_progress", FALSE, envir = .GlobalEnv)
-    return()
+  message("❌ Шаг 6: Ошибка фильтрации пожаров")
+  assign("processing_in_progress", FALSE, envir = .GlobalEnv)
+  return()
   }
   message("✅ Шаг 6 завершён")
 
   message("🚀 Шаг 7: Расчёт расстояний до объектов")
-  fire_with_distances <- calculate_fire_distances(region_names = region_names)
+  fire_with_distances <- calculate_fire_distances(fire_sf = fire_data, region_names = region_names)
   if (is.null(fire_with_distances)) {
     message("❌ Шаг 7: Ошибка расчёта расстояний")
     assign("processing_in_progress", FALSE, envir = .GlobalEnv)
