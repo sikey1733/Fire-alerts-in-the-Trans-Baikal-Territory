@@ -55,15 +55,15 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
         "\n💧 Водоём на расстоянии: ", round(nearest_fire$distance_to_water_km, 2), " км"
       )
     ) +
-    theme_void() +
+    theme_minimal() +
     theme(
-      plot.title = element_text(size = 16, face = "bold", color = "white"),
-      plot.caption = element_text(size = 12, color = "white"),
-      panel.background = element_rect(fill = "black")
+      plot.title = element_text(size = 16, face = "bold", color = "black"),
+      plot.caption = element_text(size = 12, color = "black"),
+      panel.background = element_rect(fill = "white")
     )
 
   dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
-  ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300, bg = "black")
+  ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300, bg = "white")
   message("✅ Карта сохранена: ", output_path)
   return(p)
 }
