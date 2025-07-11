@@ -67,13 +67,24 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
     message("✅ Тайлы сохранены: ", cache_file)
   }
 
-  # Преобразует растровый слой в grob для добавления в ggplot
-  tiles_matrix <- as.matrix(raster::raster(tiles_raster[[1]]))
+  # Преобразует SpatRaster в массив и нормализует значения для ggplot
+tile_array <- terra::as.array(tiles_raster)
+
+# Проверка на RGB
+if (length(dim(tile_array)) == 3 && dim(tile_array)[3] == 3) {
+  # Преобразуем в диапазон [0, 1]
+  tile_array <- tile_array / 255
+  tile_array <- aperm(tile_array, c(2, 1, 3)) # переставляем оси: [x, y, band] → [y, x, band]
+  
   tiles_grob <- grid::rasterGrob(
-    tiles_matrix,
-    width = unit(1, "npc"), height = unit(1, "npc"),
+    tile_array,
+    width = unit(1, "npc"),
+    height = unit(1, "npc"),
     interpolate = TRUE
   )
+  } else {
+  stop("❌ Ошибка: Ожидались RGB-данные (3 слоя) в тайлах карты.")
+  }
 
   # Получает координаты пожара, населённого пункта и водоёма
   fire_coords <- st_coordinates(nearest_fire) %>% as.data.frame()
