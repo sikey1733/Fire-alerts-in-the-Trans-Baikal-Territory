@@ -25,15 +25,15 @@ send_telegram_image <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
     
     # Проверяет статус ответа — 200 значит успешно
     if (httr::status_code(res) == 200) {
-      message("✅ Изображение успешно отправлено в Telegram: ", basename(image_path))
+      message("Изображение успешно отправлено в Telegram: ", basename(image_path))
       return(TRUE)
     } else {
-      warning("❌ Ошибка при отправке изображения в Telegram: ", httr::content(res, "text"))
+      warning("Ошибка при отправке изображения в Telegram: ", httr::content(res, "text"))
       return(FALSE)
     }
   }, error = function(e) {
     # Обработка ошибок при отправке запроса
-    warning("❌ Ошибка при попытке отправить изображение: ", e$message)
+    warning("Ошибка при попытке отправить изображение: ", e$message)
     return(FALSE)
   })
 }
