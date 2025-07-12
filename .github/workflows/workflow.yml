@@ -1,4 +1,4 @@
-name: 🔥 Fire Risk Daily Pipeline
+name: Fire Risk Daily Pipeline
 
 on:
   schedule:
@@ -18,15 +18,15 @@ jobs:
       R_LIBS_USER: ~/R/Library
 
     steps:
-      - name: 🔽 Клонирование репозитория
+      - name: Клонирование репозитория
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: 🛠️ Установка R
+      - name: Установка R
         uses: r-lib/actions/setup-r@v2
 
-      - name: 📦 Кэширование библиотек R
+      - name: Кэширование библиотек R
         uses: actions/cache@v3
         with:
           path: ~/R/Library
@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-r-
 
-      - name: 🔧 Установка системных библиотек
+      - name: Установка системных библиотек
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -43,37 +43,37 @@ jobs:
             libudunits2-dev libgdal-dev libgeos-dev libproj-dev \
             libfontconfig1-dev
 
-      - name: 📦 Установка зависимостей и запуск
+      - name: Установка зависимостей и запуск
         run: |
           mkdir -p ~/R/Library
           export R_LIBS_USER=~/R/Library
 
-          echo "👉 Устанавливаю критические зависимости"
+          echo "Устанавливаю критические зависимости"
           Rscript -e 'install.packages(c("curl", "httr"), repos = "https://cloud.r-project.org")'
 
-          echo "👉 Устанавливаю ecmwfr"
+          echo "Устанавливаю ecmwfr"
           Rscript -e 'install.packages("ecmwfr", repos = "https://cloud.r-project.org")'
-          Rscript -e 'library(ecmwfr); print("✅ ecmwfr загружен успешно!")'
+          Rscript -e 'library(ecmwfr); print("ecmwfr загружен успешно!")'
 
-          echo "👉 Устанавливаю остальные зависимости"
+          echo "Устанавливаю остальные зависимости"
           Rscript -e 'install.packages(c(
             "tidyverse", "stars", "openair", "lubridate",
             "osmdata", "sf", "geosphere", "ggplot2",
             "maptiles", "terra", "ggspatial", "prettymapr"
             ), repos = "https://cloud.r-project.org")'
 
-          echo "🚀 Запуск скрипта обработки"
+          echo "Запуск скрипта обработки"
           Rscript Scripts/pipeline.R
 
-      - name: 🔍 Проверка установленных пакетов
+      - name: Проверка установленных пакетов
         run: |
           export R_LIBS_USER=~/R/Library
           Rscript -e 'print(installed.packages()[, "Package"])'
 
-      - name: 📂 Просмотр содержимого папки output/
+      - name: Просмотр содержимого папки output/
         run: ls -lh output/ || echo "Нет папки output/"
 
-      - name: 📤 Загрузка артефактов (output/)
+      - name: Загрузка артефактов (output/)
         if: always()
         uses: actions/upload-artifact@v4
         with:
