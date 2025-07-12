@@ -24,7 +24,7 @@ send_telegram_image <- function(bot_token = Sys.getenv("TELEGRAM_TOKEN"),
     )
     
     # Проверяет статус ответа — 200 значит успешно
-    if (httr::status_code(res) == 200) {
+    if (status_code(res) == 200) {
       message("Изображение успешно отправлено в Telegram: ", basename(image_path))
       return(TRUE)
     } else {
