@@ -30,6 +30,7 @@ filter_and_notify <- function(fire_sf,
   fire_dist_min_water <- nearest_fire$distance_to_water_km
   
   nearest_name <- nearest_fire$settlement_name
+  fire_power <- nearest_fire$frp
   
   possible_region_cols <- c("settlement_region", "addr:region", "addr.region", "region_name")
   nearest_region <- NA_character_
@@ -49,11 +50,15 @@ filter_and_notify <- function(fire_sf,
   
   # 5. Формируем сообщение
   msg <- paste0(
-    "🔥 *Уровень риска распространения огня:* ", factor_data, "\n",
-    "📍 *Минимальное расстояние до населённого пункта:* ", round(fire_dist_min, 2), " км\n",
-    "🏘️ *Ближайший населённый пункт:* ", nearest_name,
-    if (!is.na(nearest_region) && nearest_region != "") paste0(" (", nearest_region, ")") else "", "\n",
-    "💧 *Ближайший водоём:* ", round(fire_dist_min_water, 2), " км"
+  "🔥 *Пожарный риск:*\n", 
+  "➤ Уровень распространения огня: *", factor_data, "*\n\n",
+  
+  "📍 *Ближайшее возгорание:*\n", 
+  "• Населённый пункт: *", nearest_name, 
+  if (!is.na(nearest_region) && nearest_region != "") paste0(" (", nearest_region, ")") else "", "*\n",
+  "• Расстояние до поселения: *", round(fire_dist_min, 2), " км*\n",
+  "• Расстояние до воды: *", round(fire_dist_min_water, 2), " км*\n",
+  "• Мощность излучения (FRP): *", fire_power, " МВт*"
   )
   
   # 6. Отправляем сообщение и изображение
