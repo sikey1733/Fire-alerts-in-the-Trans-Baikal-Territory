@@ -48,24 +48,24 @@ plot_nearest_fire_map <- function(fires_sf, places_sf, water_sf, output_path = "
   }
 
   p <- ggplot() +
-    ggspatial::annotation_map_tile(type = "cartolight", zoomin = -1) +
-    geom_sf(data = nearest_fire, color = "red", size = 4, shape = 8) +
-    geom_sf(data = nearest_place, color = "blue", size = 3) +
-    geom_sf(data = st_point_on_surface(nearest_water), color = "cyan", size = 3) +
-    coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max), expand = FALSE) +
-    labs(
-      title = "🔥 Ближайший пожар и водоём",
-      caption = paste0(
-        "📍 Населённый пункт: ", nearest_place_name,
-        "\n💧 Водоём на расстоянии: ", round(nearest_fire$distance_to_water_km, 2), " км"
-      )
-    ) +
-    theme_minimal() +
-    theme(
-      plot.title = element_text(size = 16, face = "bold", color = "black"),
-      plot.caption = element_text(size = 12, color = "black"),
-      panel.background = element_rect(fill = "white")
+  annotation_map_tile(type = "osm", zoomin = 0) +  
+  geom_sf(data = nearest_fire, color = "red", size = 4, shape = 8) +
+  geom_sf(data = nearest_place, color = "blue", size = 3) +
+  geom_sf(data = st_point_on_surface(nearest_water), color = "cyan", size = 3) +
+  coord_sf(xlim = c(lon_min, lon_max), ylim = c(lat_min, lat_max), expand = FALSE) +
+  labs(
+    title = "🔥 Ближайший пожар и водоём",
+    caption = paste0(
+      "📍 Населённый пункт: ", nearest_place_name,
+      "\n💧 Водоём на расстоянии: ", round(nearest_fire$distance_to_water_km, 2), " км"
     )
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", color = "black"),
+    plot.caption = element_text(size = 12, color = "black"),
+    panel.background = element_rect(fill = "white")
+  )
 
   dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
   ggsave(output_path, plot = p, width = 8, height = 6, dpi = 300, bg = "white")
