@@ -2,7 +2,7 @@ name: Fire Risk Daily Pipeline
 
 on:
   schedule:
-    - cron: "0 15 * * *"  # каждый день в 11:00 по МСК
+    - cron: "0 15 * * *"  # каждый день в 15:00 по МСК
   workflow_dispatch:
 
 jobs:
@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      TZ: Europe/Moscow
       TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       VIIRS_KEY: ${{ secrets.VIIRS_KEY }}
