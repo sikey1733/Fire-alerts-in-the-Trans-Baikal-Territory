@@ -29,11 +29,11 @@ calc_fire_risk_flag <- function(day_df) {
   
   # Логика определения уровня риска пожара
   if (mean_temp >= 15 && sum_precip < 10 && mean_wind >= 3 && stl1 >= 5 && stl2 >= 5) {
-    return("Высокий риск")
+    return("Высокий")
   } else if (mean_temp >= 10 && sum_precip < 15 && mean_wind >= 2) {
-    return("Средний риск")
+    return("Средний")
   } else if (mean_temp < 5 && sum_precip > 50 && mean_wind < 2 && stl1 < 2 && stl2 < 2) {
-    return("Низкий риск")
+    return("Низкий")
   } else {
     return("Нет риска")
   }
