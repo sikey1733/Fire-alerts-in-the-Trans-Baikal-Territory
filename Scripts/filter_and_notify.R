@@ -58,7 +58,7 @@ filter_and_notify <- function(fire_sf,
   if (!is.na(nearest_region) && nearest_region != "") paste0(" (", nearest_region, ")") else "", "*\n",
   "• Расстояние до поселения: *", round(fire_dist_min, 2), " км*\n",
   "• Расстояние до воды: *", round(fire_dist_min_water, 2), " км*\n",
-  "• Мощность излучения (FRP): *", fire_power, " МВт*"
+  "• Мощность излучения: *", fire_power, " МВт*"
   )
   
   # 6. Отправляем сообщение и изображение
