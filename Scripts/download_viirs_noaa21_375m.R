@@ -4,7 +4,7 @@ download_viirs_noaa21_375m <- function(map_key = Sys.getenv("VIIRS_KEY")) {
   base_url <- "https://firms.modaps.eosdis.nasa.gov/api/area/csv"
   product <- "VIIRS_NOAA21_NRT"
   bbox <- paste(c(102.7, 46.7, 130.7, 63.6), collapse = ",")
-  days <- "2"
+  days <- "1"
   url <- sprintf("%s/%s/%s/%s/%s", base_url, map_key, product, bbox, days)
   data_dir <- "data"
 
